@@ -1,8 +1,8 @@
 package ir.nevercom.somu
 
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 
 class PasswordInputState : TextFieldState(
     validator = ::isValidPassword,
@@ -16,5 +16,5 @@ private fun passwordValidationError(password: String): String {
 }
 
 private fun isValidPassword(password: String): Boolean {
-    return password.isNotEmpty()
+    return password.length >= 8
 }

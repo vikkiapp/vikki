@@ -1,8 +1,8 @@
 package ir.nevercom.somu
 
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 
 /**
  * @property[validator] Some function that takes the current text and
