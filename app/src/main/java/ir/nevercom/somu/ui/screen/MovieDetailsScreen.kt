@@ -99,67 +99,169 @@ private fun Content(movie: Movie) {
                      *//*
                 )*/
         ) {
-            Text(
-                text = movie.tagline!!.uppercase(),
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center,
-                fontWeight = FontWeight.Bold,
-                color = Color.White.copy(alpha = 0.4f)
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-                //.clip(RoundedCornerShape(8.dp)).background(Color.Gray.copy(alpha = 0.1f))
-                ,
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Image(
-                    painter = rememberImagePainter(
-                        data = movie.posterPath,
-                        builder = {
-                            crossfade(true)
-                            placeholder(R.drawable.poster_1) // TODO: Remove or change in production
-                        }
-                    ),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .border(2.dp, Color.White.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
-                        .width(140.dp)
-                        .aspectRatio(0.69f)
-                        .clip(RoundedCornerShape(8.dp))
+            movie.tagline?.let {
+                Text(
+                    text = movie.tagline.uppercase(),
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White.copy(alpha = 0.4f)
                 )
-                Column(modifier = Modifier.fillMaxWidth()) {
+            }
+            PosterSection(
+                movie = movie,
+                modifier = Modifier.paddingFromBaseline(top = 42.dp)
+            )
+            movie.credits?.let {
+                Spacer(modifier = Modifier.height(16.dp))
+                CastsSection(movie.credits.cast)
+            }
+            movie.overview?.let {
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "Storyline",
+                    style = MaterialTheme.typography.subtitle2,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = movie.overview,
+                    style = MaterialTheme.typography.body2,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun CastsSection(casts: List<Cast>) {
+    Text(
+        text = "The Cast",
+        style = MaterialTheme.typography.subtitle2,
+        modifier = Modifier.padding(horizontal = 16.dp)
+    )
+    Spacer(modifier = Modifier.height(8.dp))
+    CastsList(casts)
+}
+
+@Composable
+private fun CastsList(casts: List<Cast>) {
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(horizontal = 16.dp)
+    ) {
+        items(
+            items = casts.filter { it.profilePath != null }.take(10)
+        ) { cast ->
+            CastCard(cast, {})
+        }
+    }
+}
+
+@Composable
+private fun CastCard(
+    cast: Cast,
+    onClick: (cast: Cast) -> Unit
+) {
+
+    Column(
+        modifier = Modifier.width(64.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Image(
+            painter = rememberImagePainter(
+                data = cast.profilePath,
+
+                ),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .size(64.dp)
+                .clip(CircleShape)
+                .clickable {
+                    onClick(cast)
+                }
+        )
+        Text(
+            text = cast.name,
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.caption
+        )
+    }
+}
+
+@Composable
+private fun PosterSection(modifier: Modifier = Modifier, movie: Movie) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+        //.clip(RoundedCornerShape(8.dp)).background(Color.Gray.copy(alpha = 0.1f))
+        ,
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Image(
+            painter = rememberImagePainter(
+                data = movie.posterPath,
+                builder = {
+                    crossfade(true)
+                    placeholder(R.drawable.poster_1) // TODO: Remove or change in production
+                }
+            ),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .border(2.dp, Color.White.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
+                .width(140.dp)
+                .aspectRatio(0.69f)
+                .clip(RoundedCornerShape(8.dp))
+        )
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Text(
+                text = movie.title,
+                style = MaterialTheme.typography.h6
+            )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                movie.certification?.let {
                     Text(
-                        text = movie.title,
-                        style = MaterialTheme.typography.h6
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        movie.certification?.let {
-                            Text(
-                                text = it,
-                                modifier = Modifier
-                                    .border(
-                                        width = 1.dp,
-                                        color = Color.White,
-                                        shape = RoundedCornerShape(4.dp)
-                                    )
-                                    .padding(horizontal = 4.dp, vertical = 2.dp)
+                        text = it,
+                        modifier = Modifier
+                            .border(
+                                width = 1.dp,
+                                color = Color.White,
+                                shape = RoundedCornerShape(4.dp)
                             )
-                        }
+                            .padding(horizontal = 4.dp, vertical = 2.dp)
+                    )
+                }
+                Text(
+                    text = "${movie.releaseDate.substring(0, 4)} - ${movie.genres?.first()?.name}"
+                )
+            }
+            movie.genres?.let { genres ->
+
+                Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                    genres.take(3).forEach {
                         Text(
-                            text = "${
-                                movie.releaseDate.substring(
-                                    0,
-                                    4
-                                )
-                            } - ${movie.genres?.first()?.name}"
+                            text = it.name,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier
+                                .background(color = darkRed, shape = RoundedCornerShape(16.dp))
+                                .padding(horizontal = 6.dp, vertical = 2.dp)
+                                .height(16.dp),
+                            style = MaterialTheme.typography.caption.copy(
+                                fontSize = 10.sp
+                            )
                         )
                     }
                 }
