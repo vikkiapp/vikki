@@ -265,6 +265,16 @@ private fun PosterSection(modifier: Modifier = Modifier, movie: Movie) {
                         )
                     }
                 }
+
+            }
+            RatingBar(
+                rating = (movie.voteAverage / 2).toFloat(),
+                modifier = Modifier.height(20.dp),
+                color = lightOrange
+            )
+            Text(text = "Runtime: ${movie.runtime} minutes")
+            movie.credits?.let { credits ->
+                Text(text = "Directed by ${credits.crew.find { it.job.lowercase() == "director" }?.name}")
             }
         }
     }
