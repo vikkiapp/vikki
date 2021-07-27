@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -49,7 +50,7 @@ fun MainScreen(onMovieClicked: (movie: Movie) -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Somu") },
+                title = { Text(stringResource(id = R.string.app_name)) },
                 backgroundColor = Color.Transparent,
                 contentColor = Color.White,
                 elevation = 0.dp
