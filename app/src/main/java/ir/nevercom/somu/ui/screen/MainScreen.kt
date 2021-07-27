@@ -142,7 +142,7 @@ fun HomeContent(
                 is Loaded -> {
                     items(items = movies.data!!) {
                         MovieCard(
-                            url = it.posterPath!!
+                            url = it.posterPath
                         ) {
                             onMovieClicked(it)
                         }
@@ -157,7 +157,7 @@ fun HomeContent(
 }
 
 @Composable
-fun MovieCard(url: String, onClick: () -> Unit) {
+fun MovieCard(url: String?, onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .width(96.dp)
