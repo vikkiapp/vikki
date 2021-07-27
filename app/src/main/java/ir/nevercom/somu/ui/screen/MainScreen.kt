@@ -140,7 +140,7 @@ fun HomeContent(
         ) {
             when (val movies = currentState.movies) {
                 is Loaded -> {
-                    items(items = movies.data!!) {
+                    items(items = movies.data!!, key = { it.id }) {
                         MovieCard(
                             url = it.posterPath
                         ) {
