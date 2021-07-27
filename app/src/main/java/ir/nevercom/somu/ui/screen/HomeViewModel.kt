@@ -22,7 +22,7 @@ class HomeViewModel(private val api: Api) : ViewModel() {
     private fun search() {
         _state.value = HomeViewState(ViewState.Loading())
         viewModelScope.launch {
-            when (val response = api.search("")) {
+            when (val response = api.search("god")) {
                 is NetworkResponse.Success -> {
                     _state.value = HomeViewState(ViewState.Loaded(response.body.results))
                 }
