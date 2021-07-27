@@ -43,13 +43,13 @@ data class Movie(
     @SerializedName("release_date")
     val releaseDate: String,
     @SerializedName("revenue")
-    val revenue: Int,
+    val revenue: Int?,
     @SerializedName("runtime")
     val runtime: Int?,
     @SerializedName("spoken_languages")
     val spokenLanguages: List<SpokenLanguage>?,
     @SerializedName("status")
-    val status: String,
+    val status: String?,
     @SerializedName("tagline")
     val tagline: String?,
     @SerializedName("title")
@@ -101,7 +101,7 @@ data class Cast(
     @SerializedName("adult")
     val adult: Boolean,
     @SerializedName("cast_id")
-    val castId: Int,
+    val castId: Int?,
     @SerializedName("character")
     val character: String,
     @SerializedName("credit_id")
