@@ -52,7 +52,11 @@ fun MovieDetailsScreen(movie: Movie, viewModel: MovieDetailsViewModel = getViewM
 
 @Composable
 private fun Content(movie: Movie) {
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(colorResource(id = R.color.gray))
+    ) {
         Image(
             painter = rememberImagePainter(
                 data = movie.posterPath,
@@ -64,34 +68,36 @@ private fun Content(movie: Movie) {
             ),
             contentDescription = null,
             contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize()
-        )
-        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .statusBarsHeight()
-                .background(Color.Gray.copy(alpha = 0.1f))
+                .fillMaxSize()
+                .alpha(0.5f)
         )
+//        Box(
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .statusBarsHeight()
+//                .background(Color.Gray.copy(alpha = 0.1f))
+//        )
         Column(
             modifier = Modifier
                 .padding(top = 32.dp)
                 .fillMaxSize()
                 .statusBarsPadding()
-                .background(
-                    Brush.linearGradient(
-                        0.2f to Color.Transparent,
-                        0.5f to bgColorEdge,
-                        1f to bgColorEdge,
-                    )
-                    /*
+            /*               .background(
+                               Brush.linearGradient(
+                                   0.2f to Color.Transparent,
+                                   0.5f to bgColorEdge,
+                                   1f to bgColorEdge,
+                               )
+                               *//*
                     Brush.verticalGradient(
                             0.0f to Color.Transparent,
                             0.3f to bgColorEdge.copy(alpha = 0.7f),
                             0.5f to bgColorEdge.copy(alpha = 0.9f),
                             0.7f to bgColorEdge
                         )
-                     */
-                )
+                     *//*
+                )*/
         ) {
             Text(
                 text = movie.tagline!!.uppercase(),
