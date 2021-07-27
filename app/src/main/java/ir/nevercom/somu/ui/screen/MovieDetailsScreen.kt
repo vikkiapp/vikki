@@ -83,7 +83,7 @@ private fun Content(movie: Movie, onBackClicked: () -> Unit) {
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .fillMaxSize()
-                .alpha(0.5f)
+                .alpha(0.7f)
         )
         Column(modifier = Modifier.fillMaxSize()) {
             Row(
