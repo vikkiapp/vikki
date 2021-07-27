@@ -9,9 +9,9 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -19,20 +19,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberImagePainter
 import coil.transform.BlurTransformation
-import com.google.accompanist.insets.statusBarsHeight
 import com.google.accompanist.insets.statusBarsPadding
 import ir.nevercom.somu.R
 import ir.nevercom.somu.ViewState
@@ -41,13 +39,16 @@ import ir.nevercom.somu.model.Movie
 import ir.nevercom.somu.model.sampleMovie
 import ir.nevercom.somu.ui.component.RatingBar
 import ir.nevercom.somu.ui.theme.SomuTheme
-import ir.nevercom.somu.ui.theme.bgColorEdge
 import ir.nevercom.somu.ui.theme.darkRed
 import ir.nevercom.somu.ui.theme.lightOrange
 import org.koin.androidx.compose.getViewModel
 
 @Composable
-fun MovieDetailsScreen(movie: Movie, viewModel: MovieDetailsViewModel = getViewModel()) {
+fun MovieDetailsScreen(
+    movie: Movie,
+    viewModel: MovieDetailsViewModel = getViewModel(),
+    onBackClicked: () -> Unit
+) {
     val state: MovieDetailsViewState by viewModel.state.observeAsState(
         MovieDetailsViewState(
             ViewState.Loading()
@@ -59,11 +60,11 @@ fun MovieDetailsScreen(movie: Movie, viewModel: MovieDetailsViewModel = getViewM
         currentMovie = state.movie.data!!
     }
 
-    Content(currentMovie)
+    Content(currentMovie, onBackClicked)
 }
 
 @Composable
-private fun Content(movie: Movie) {
+private fun Content(movie: Movie, onBackClicked: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -84,45 +85,40 @@ private fun Content(movie: Movie) {
                 .fillMaxSize()
                 .alpha(0.5f)
         )
-//        Box(
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .statusBarsHeight()
-//                .background(Color.Gray.copy(alpha = 0.1f))
-//        )
-        Column(
-            modifier = Modifier
-                .padding(top = 16.dp)
-                .fillMaxSize()
-                .statusBarsPadding()
-            /*               .background(
-                               Brush.linearGradient(
-                                   0.2f to Color.Transparent,
-                                   0.5f to bgColorEdge,
-                                   1f to bgColorEdge,
-                               )
-                               *//*
-                    Brush.verticalGradient(
-                            0.0f to Color.Transparent,
-                            0.3f to bgColorEdge.copy(alpha = 0.7f),
-                            0.5f to bgColorEdge.copy(alpha = 0.9f),
-                            0.7f to bgColorEdge
-                        )
-                     *//*
-                )*/
-        ) {
-            movie.tagline?.let {
-                Text(
-                    text = movie.tagline.uppercase(),
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Center,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White.copy(alpha = 0.4f)
-                )
+        Column(modifier = Modifier.fillMaxSize()) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .statusBarsPadding()
+                    .padding(end = 16.dp)
+            ) {
+                IconButton(
+                    onClick = { onBackClicked() }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = "Back Button"
+                    )
+                }
+                movie.tagline?.let {
+                    Text(
+                        text = it.uppercase(),
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White.copy(alpha = 0.4f),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+
             }
+
             PosterSection(
                 movie = movie,
-                modifier = Modifier.paddingFromBaseline(top = 42.dp)
+                modifier = Modifier.padding(top = 8.dp)
             )
             movie.credits?.let {
                 Spacer(modifier = Modifier.height(16.dp))
@@ -139,6 +135,7 @@ private fun Content(movie: Movie) {
                 Text(
                     text = movie.overview,
                     style = MaterialTheme.typography.body2,
+                    textAlign = TextAlign.Justify,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp),
@@ -279,11 +276,18 @@ private fun PosterSection(modifier: Modifier = Modifier, movie: Movie) {
                 }
 
             }
-            RatingBar(
-                rating = (movie.voteAverage / 2).toFloat(),
-                modifier = Modifier.height(20.dp),
-                color = lightOrange
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                RatingBar(
+                    rating = (movie.voteAverage / 2).toFloat(),
+                    modifier = Modifier.height(20.dp),
+                    color = lightOrange
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "(${movie.voteAverage})",
+                    textAlign = TextAlign.Center,
+                )
+            }
             Text(text = "Runtime: ${movie.runtime} minutes")
             movie.credits?.let { credits ->
                 Text(text = "Directed by ${credits.crew.find { it.job.lowercase() == "director" }?.name}")
@@ -297,7 +301,7 @@ private fun PosterSection(modifier: Modifier = Modifier, movie: Movie) {
 fun MovieDetailsScreenPreview() {
     SomuTheme {
         Surface {
-            Content(movie = sampleMovie)
+            Content(movie = sampleMovie, onBackClicked = {})
         }
     }
 }

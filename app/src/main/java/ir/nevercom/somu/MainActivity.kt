@@ -89,7 +89,9 @@ class MainActivity : ComponentActivity() {
             }
             // Just for testing purpose.
             composable("movie.details") {
-                MovieDetailsScreen(movie = sampleMovie)
+                MovieDetailsScreen(
+                    movie = sampleMovie,
+                    onBackClicked = { navController.popBackStack() })
             }
         }
     }

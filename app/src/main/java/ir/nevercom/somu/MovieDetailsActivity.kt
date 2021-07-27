@@ -50,7 +50,9 @@ class MovieDetailsActivity : ComponentActivity() {
                         color = MaterialTheme.colors.background,
                         modifier = Modifier.fillMaxSize()
                     ) {
-                        MovieDetailsScreen(movie, viewModel)
+                        MovieDetailsScreen(movie, viewModel, onBackClicked = {
+                            finish()
+                        })
                     }
                 }
             }
