@@ -3,7 +3,11 @@ package ir.nevercom.somu.ui.screen
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
@@ -13,25 +17,33 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.rememberImagePainter
 import coil.transform.BlurTransformation
 import com.google.accompanist.insets.statusBarsHeight
 import com.google.accompanist.insets.statusBarsPadding
 import ir.nevercom.somu.R
 import ir.nevercom.somu.ViewState
+import ir.nevercom.somu.model.Cast
 import ir.nevercom.somu.model.Movie
 import ir.nevercom.somu.model.sampleMovie
+import ir.nevercom.somu.ui.component.RatingBar
 import ir.nevercom.somu.ui.theme.SomuTheme
 import ir.nevercom.somu.ui.theme.bgColorEdge
+import ir.nevercom.somu.ui.theme.darkRed
+import ir.nevercom.somu.ui.theme.lightOrange
 import org.koin.androidx.compose.getViewModel
 
 @Composable
@@ -44,7 +56,7 @@ fun MovieDetailsScreen(movie: Movie, viewModel: MovieDetailsViewModel = getViewM
     var currentMovie = movie.copy()
 
     if (state.movie is ViewState.Loaded && state.movie.data != null) {
-        //currentMovie = state.movie.data!!
+        currentMovie = state.movie.data!!
     }
 
     Content(currentMovie)
@@ -80,7 +92,7 @@ private fun Content(movie: Movie) {
 //        )
         Column(
             modifier = Modifier
-                .padding(top = 32.dp)
+                .padding(top = 16.dp)
                 .fillMaxSize()
                 .statusBarsPadding()
             /*               .background(
