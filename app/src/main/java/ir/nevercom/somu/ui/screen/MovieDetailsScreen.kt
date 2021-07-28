@@ -248,6 +248,7 @@ private fun PosterSection(modifier: Modifier = Modifier, movie: Movie) {
                 movie.certification?.let {
                     Text(
                         text = it,
+                        style = MaterialTheme.typography.caption,
                         modifier = Modifier
                             .border(
                                 width = 1.dp,
@@ -258,12 +259,13 @@ private fun PosterSection(modifier: Modifier = Modifier, movie: Movie) {
                     )
                 }
                 Text(
-                    text = "${movie.releaseDate.substring(0, 4)} - ${movie.genres?.first()?.name}"
+                    text = "${movie.releaseDate.substring(0, 4)} - ${movie.genres?.first()?.name}",
+                    style = MaterialTheme.typography.caption,
                 )
             }
             movie.genres?.let { genres ->
 
-                Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                     genres.take(3).forEach {
                         Text(
                             text = it.name,
@@ -290,11 +292,18 @@ private fun PosterSection(modifier: Modifier = Modifier, movie: Movie) {
                 Text(
                     text = "(${movie.voteAverage})",
                     textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.caption,
                 )
             }
-            Text(text = "Runtime: ${movie.runtime} minutes")
+            Text(
+                text = "Runtime: ${movie.runtime} minutes",
+                style = MaterialTheme.typography.caption,
+            )
             movie.credits?.let { credits ->
-                Text(text = "Directed by ${credits.crew.find { it.job.lowercase() == "director" }?.name}")
+                Text(
+                    text = "Directed by ${credits.crew.find { it.job.lowercase() == "director" }?.name}",
+                    style = MaterialTheme.typography.caption,
+                )
             }
         }
     }
