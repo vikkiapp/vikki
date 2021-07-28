@@ -1,9 +1,6 @@
 package ir.nevercom.somu.ui.screen
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -45,7 +42,7 @@ import org.koin.androidx.compose.getViewModel
 
 @Composable
 fun MovieDetailsScreen(
-    movie: Movie,
+    movie: Movie, // Should be removed
     viewModel: MovieDetailsViewModel = getViewModel(),
     onBackClicked: () -> Unit
 ) {
@@ -86,62 +83,69 @@ private fun Content(movie: Movie, onBackClicked: () -> Unit) {
                 .alpha(0.7f)
         )
         Column(modifier = Modifier.fillMaxSize()) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .statusBarsPadding()
-                    .padding(end = 16.dp)
-            ) {
-                IconButton(
-                    onClick = { onBackClicked() }
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.ArrowBack,
-                        contentDescription = "Back Button"
-                    )
+            TopBar(movie = movie, onBackClicked = onBackClicked)
+            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                PosterSection(
+                    movie = movie,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+                movie.credits?.let {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    CastsSection(movie.credits.cast)
                 }
-                movie.tagline?.let {
+                movie.overview?.let {
+                    Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        text = it.uppercase(),
+                        text = "Storyline",
+                        style = MaterialTheme.typography.subtitle2,
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = movie.overview,
+                        style = MaterialTheme.typography.body2,
+                        textAlign = TextAlign.Justify,
                         modifier = Modifier
-                            .fillMaxWidth(),
-                        textAlign = TextAlign.Center,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White.copy(alpha = 0.4f),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
                     )
                 }
-
             }
 
-            PosterSection(
-                movie = movie,
-                modifier = Modifier.padding(top = 8.dp)
-            )
-            movie.credits?.let {
-                Spacer(modifier = Modifier.height(16.dp))
-                CastsSection(movie.credits.cast)
-            }
-            movie.overview?.let {
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = "Storyline",
-                    style = MaterialTheme.typography.subtitle2,
-                    modifier = Modifier.padding(horizontal = 16.dp)
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = movie.overview,
-                    style = MaterialTheme.typography.body2,
-                    textAlign = TextAlign.Justify,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                )
-            }
         }
+    }
+}
+
+@Composable
+private fun TopBar(movie: Movie, onBackClicked: () -> Unit) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .statusBarsPadding()
+            .padding(end = 16.dp)
+    ) {
+        IconButton(
+            onClick = { onBackClicked() }
+        ) {
+            Icon(
+                imageVector = Icons.Default.ArrowBack,
+                contentDescription = "Back Button"
+            )
+        }
+        movie.tagline?.let {
+            Text(
+                text = it.uppercase(),
+                modifier = Modifier
+                    .fillMaxWidth(),
+                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.Bold,
+                color = Color.White.copy(alpha = 0.4f),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+
     }
 }
 
