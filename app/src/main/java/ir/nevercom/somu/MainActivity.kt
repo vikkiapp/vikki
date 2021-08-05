@@ -1,7 +1,6 @@
 package ir.nevercom.somu
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -78,13 +77,6 @@ class MainActivity : ComponentActivity() {
         NavHost(navController = navController, startDestination = startDestination) {
             composable("main") {
                 MainScreen(onMovieClicked = { id ->
-//                    startActivity(
-//                        Intent(
-//                            this@MainActivity,
-//                            MovieDetailsActivity::class.java
-//                        ).putExtra("movieId", id)
-//                    )
-                    Log.d("onMovieClicked", "Id: $id")
                     navController.navigate("details/movie/$id")
                 })
             }
@@ -97,17 +89,11 @@ class MainActivity : ComponentActivity() {
                     }
                 )
             }
-            // Just for testing purpose.
             composable(
                 route = "details/movie/{id}",
                 arguments = listOf(navArgument("id") { type = NavType.IntType })
-            ) { backStackEntry ->
-//
-//                val movieId = backStackEntry.arguments?.getInt("id")
-//                Log.d("MovieDetailsComposable", "Id: $id")
-//                val viewModel: MovieDetailsViewModel = getViewModel { parametersOf(movieId) }
+            ) {
                 MovieDetailsScreen(
-                    //viewModel = viewModel,
                     onBackClicked = { navController.popBackStack() }
                 )
             }
