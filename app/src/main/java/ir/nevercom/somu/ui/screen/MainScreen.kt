@@ -111,57 +111,7 @@ fun MainScreen(onMovieClicked: (movie: Movie) -> Unit) {
     }
 }
 
-@Composable
-fun MovieCardPlaceHolder() {
-    Box(
-        modifier = Modifier
-            .width(96.dp)
-            .aspectRatio(0.69f)
-            .placeholder(
-                visible = true,
-                color = Color.LightGray.copy(alpha = 0.1f),
-                highlight = PlaceholderHighlight.shimmer(),
-            )
-    )
-
-}
-
-@Preview(name = "List of Posters")
-@Composable
-fun MoviePosterListPreview() {
-    SomuTheme {
-        Surface(color = MaterialTheme.colors.background) {
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxWidth(),
-                contentPadding = PaddingValues(16.dp)
-            ) {
-                items(6) {
-                    MovieCard(url = "") {
-
-                    }
-                }
-
-            }
-        }
-    }
-}
-
-
-@Preview(name = "Single Poster")
-@Composable
-fun MoviePosterPreview() {
-    SomuTheme {
-        Surface(
-            color = MaterialTheme.colors.background,
-            modifier = Modifier.padding(16.dp)
-        ) {
-            MovieCard(url = "") {}
-        }
-    }
-}
-
-@Preview()
+@Preview
 @Composable
 fun PreviewMainScreen() {
     SomuTheme {
