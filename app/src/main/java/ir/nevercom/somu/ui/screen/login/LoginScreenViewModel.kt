@@ -1,4 +1,4 @@
-package ir.nevercom.somu.ui.screen
+package ir.nevercom.somu.ui.screen.login
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

@@ -1,4 +1,4 @@
-package ir.nevercom.somu.ui.screen
+package ir.nevercom.somu.ui.screen.login
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.Image
@@ -26,10 +26,10 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import ir.nevercom.somu.EmailInputState
-import ir.nevercom.somu.PasswordInputState
 import ir.nevercom.somu.R
 import ir.nevercom.somu.ui.theme.SomuTheme
+import ir.nevercom.somu.util.EmailInputState
+import ir.nevercom.somu.util.PasswordInputState
 import org.koin.androidx.compose.getViewModel
 
 @Composable

@@ -1,4 +1,4 @@
-package ir.nevercom.somu
+package ir.nevercom.somu.util
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
