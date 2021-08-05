@@ -1,22 +1,23 @@
 package ir.nevercom.somu.ui.screen.movieDetails
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.haroldadmin.cnradapter.NetworkResponse
+import dagger.hilt.android.lifecycle.HiltViewModel
 import de.vkay.api.tmdb.TMDb
 import de.vkay.api.tmdb.models.TmdbMovie
 import de.vkay.api.tmdb.models.TmdbPerson
 import de.vkay.api.tmdb.models.TmdbReleaseDate
 import ir.nevercom.somu.util.ViewState
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class MovieDetailsViewModel(
-    private val tmdb: TMDb,
-    private val movieId: Int
+@HiltViewModel
+class MovieDetailsViewModel @Inject constructor(
+    handle: SavedStateHandle,
+    private val tmdb: TMDb
 ) : ViewModel() {
+    private val movieId: Int = handle.get("id")!!
     private val _state: MutableLiveData<MovieDetailsViewState> = MutableLiveData(
         MovieDetailsViewState.Empty
     )
@@ -24,6 +25,7 @@ class MovieDetailsViewModel(
     private fun currentState(): MovieDetailsViewState = _state.value!!
 
     init {
+        Log.d("MovieDetailsViewModel", "Movie Id: $movieId")
         viewModelScope.launch {
             getMovieInfo()
             getCast()

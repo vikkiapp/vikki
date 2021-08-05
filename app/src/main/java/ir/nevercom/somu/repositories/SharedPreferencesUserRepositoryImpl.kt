@@ -3,8 +3,9 @@ package ir.nevercom.somu.repositories
 import android.util.Log
 import ir.nevercom.somu.model.ModelPreferencesManager
 import ir.nevercom.somu.model.User
+import javax.inject.Inject
 
-class SharedPreferencesUserRepositoryImpl : UserRepository {
+class SharedPreferencesUserRepositoryImpl @Inject constructor() : UserRepository {
     private val keyUser = "current_user"
     private val ketToken = "token"
 

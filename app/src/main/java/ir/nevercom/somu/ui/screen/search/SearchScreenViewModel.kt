@@ -5,13 +5,16 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.haroldadmin.cnradapter.NetworkResponse
+import dagger.hilt.android.lifecycle.HiltViewModel
 import de.vkay.api.tmdb.TMDb
 import de.vkay.api.tmdb.models.TmdbMovie
 import de.vkay.api.tmdb.models.TmdbPage
 import ir.nevercom.somu.util.ViewState
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class SearchScreenViewModel(private val tmdb: TMDb) : ViewModel() {
+@HiltViewModel
+class SearchScreenViewModel @Inject constructor(private val tmdb: TMDb) : ViewModel() {
     private val _state: MutableLiveData<SearchViewState> =
         MutableLiveData(SearchViewState(ViewState.Empty()))
 

@@ -26,6 +26,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberImagePainter
 import coil.transform.BlurTransformation
 import com.google.accompanist.insets.statusBarsPadding
@@ -41,7 +42,7 @@ import ir.nevercom.somu.util.ViewState
 
 @Composable
 fun MovieDetailsScreen(
-    viewModel: MovieDetailsViewModel,
+    viewModel: MovieDetailsViewModel = hiltViewModel(),
     onBackClicked: () -> Unit
 ) {
     val state = viewModel.state.observeAsState()

@@ -9,15 +9,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import de.vkay.api.tmdb.models.TmdbImage
 import ir.nevercom.somu.ui.component.MovieCard
 import ir.nevercom.somu.ui.component.MovieCardPlaceHolder
 import ir.nevercom.somu.util.ViewState
-import org.koin.androidx.compose.getViewModel
 
 @Composable
 fun HomeContent(
-    vm: HomeViewModel = getViewModel(),
+    vm: HomeViewModel = hiltViewModel(),
     onMovieClicked: (movieId: Int) -> Unit
 ) {
     val state = vm.state.observeAsState()
