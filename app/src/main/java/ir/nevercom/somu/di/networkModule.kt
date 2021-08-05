@@ -1,6 +1,7 @@
 package ir.nevercom.somu.di
 
 import com.haroldadmin.cnradapter.NetworkResponseAdapterFactory
+import de.vkay.api.tmdb.TMDb
 import ir.nevercom.somu.BuildConfig
 import ir.nevercom.somu.repositories.Api
 import ir.nevercom.somu.util.AuthInterceptor
@@ -15,6 +16,7 @@ val networkModule = module {
     factory { provideOkHttpClient(get()) }
     single { provideRetrofit(get()) }
     factory { provideSomuApi(get()) }
+    single { TMDb.init(BuildConfig.TMDB_API_KEY) }
 }
 
 fun provideOkHttpClient(authInterceptor: AuthInterceptor): OkHttpClient {

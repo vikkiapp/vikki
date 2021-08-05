@@ -12,9 +12,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.core.view.WindowCompat
 import com.google.accompanist.insets.ProvideWindowInsets
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import ir.nevercom.somu.model.Movie
-import ir.nevercom.somu.ui.screen.MovieDetailsScreen
-import ir.nevercom.somu.ui.screen.MovieDetailsViewModel
+import ir.nevercom.somu.ui.screen.movieDetails.MovieDetailsScreen
+import ir.nevercom.somu.ui.screen.movieDetails.MovieDetailsViewModel
 import ir.nevercom.somu.ui.theme.SomuTheme
 import org.koin.android.ext.android.inject
 import org.koin.core.parameter.parametersOf
@@ -23,9 +22,9 @@ class MovieDetailsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val movie = intent.getParcelableExtra<Movie>("movie")!!
+        val movieId = intent.getIntExtra("movieId", 0)
         WindowCompat.setDecorFitsSystemWindows(window, false)
-        val viewModel: MovieDetailsViewModel by inject { parametersOf(movie.id) }
+        val viewModel: MovieDetailsViewModel by inject { parametersOf(movieId) }
         setContent {
 
             SomuTheme {
@@ -50,7 +49,7 @@ class MovieDetailsActivity : ComponentActivity() {
                         color = MaterialTheme.colors.background,
                         modifier = Modifier.fillMaxSize()
                     ) {
-                        MovieDetailsScreen(movie, viewModel, onBackClicked = {
+                        MovieDetailsScreen(viewModel = viewModel, onBackClicked = {
                             finish()
                         })
                     }

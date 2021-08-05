@@ -1,5 +1,7 @@
-package ir.nevercom.somu.ui.screen
+package ir.nevercom.somu.ui.screen.movieDetails
 
+import android.annotation.SuppressLint
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -10,7 +12,6 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,45 +24,61 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberImagePainter
 import coil.transform.BlurTransformation
 import com.google.accompanist.insets.statusBarsPadding
+import de.vkay.api.tmdb.models.TmdbImage
+import de.vkay.api.tmdb.models.TmdbMovie
+import de.vkay.api.tmdb.models.TmdbPerson
+import de.vkay.api.tmdb.models.TmdbReleaseDate
 import ir.nevercom.somu.R
-import ir.nevercom.somu.ViewState
-import ir.nevercom.somu.model.Cast
-import ir.nevercom.somu.model.Movie
-import ir.nevercom.somu.model.sampleMovie
 import ir.nevercom.somu.ui.component.RatingBar
-import ir.nevercom.somu.ui.theme.SomuTheme
 import ir.nevercom.somu.ui.theme.darkRed
 import ir.nevercom.somu.ui.theme.lightOrange
-import org.koin.androidx.compose.getViewModel
+import ir.nevercom.somu.util.ViewState
 
 @Composable
 fun MovieDetailsScreen(
-    movie: Movie, // Should be removed
-    viewModel: MovieDetailsViewModel = getViewModel(),
+    viewModel: MovieDetailsViewModel,
     onBackClicked: () -> Unit
 ) {
-    val state: MovieDetailsViewState by viewModel.state.observeAsState(
-        MovieDetailsViewState(
-            ViewState.Loading()
-        )
-    )
-    var currentMovie = movie.copy()
+    val state = viewModel.state.observeAsState()
+    val currentState = state.value!!
 
-    if (state.movie is ViewState.Loaded && state.movie.data != null) {
-        currentMovie = state.movie.data!!
+
+    Crossfade(targetState = currentState.movie) { movieState ->
+        when (movieState) {
+            is ViewState.Loaded -> {
+                Content(
+                    movie = movieState.data!!,
+                    cast = currentState.cast,
+                    crew = currentState.crew,
+                    releaseDates = currentState.releaseDates,
+                    onBackClicked = onBackClicked
+                )
+            }
+            else -> {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+            }
+        }
     }
 
-    Content(currentMovie, onBackClicked)
+
 }
 
+
 @Composable
-private fun Content(movie: Movie, onBackClicked: () -> Unit) {
+private fun Content(
+    movie: TmdbMovie,
+    cast: ViewState<List<Pair<TmdbPerson.Slim, TmdbPerson.CastRole>>>,
+    crew: ViewState<List<Pair<TmdbPerson.Slim, TmdbPerson.CrewJob>>>,
+    releaseDates: ViewState<Map<String, List<TmdbReleaseDate>>>,
+    onBackClicked: () -> Unit
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -69,31 +86,33 @@ private fun Content(movie: Movie, onBackClicked: () -> Unit) {
     ) {
         Image(
             painter = rememberImagePainter(
-                data = movie.posterPath,
+                data = movie.poster?.get(TmdbImage.Quality.POSTER_W_185),
                 builder = {
                     crossfade(true)
-                    placeholder(R.drawable.poster_1_blur) // TODO: Remove or change in production
-                    transformations(BlurTransformation(LocalContext.current, 20f, 5f))
+                    //placeholder(R.drawable.poster_1_blur) // TODO: Remove or change in production
+                    transformations(BlurTransformation(LocalContext.current, 15f, 3f))
                 }
             ),
             contentDescription = null,
-            contentScale = ContentScale.Crop,
             modifier = Modifier
                 .fillMaxSize()
-                .alpha(0.7f)
+                .alpha(0.7f),
+            contentScale = ContentScale.Crop,
         )
         Column(modifier = Modifier.fillMaxSize()) {
             TopBar(movie = movie, onBackClicked = onBackClicked)
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                 PosterSection(
                     movie = movie,
+                    crew = crew,
+                    releaseDates = releaseDates,
                     modifier = Modifier.padding(top = 8.dp)
                 )
-                movie.credits?.let {
+                if (cast is ViewState.Loaded) {
                     Spacer(modifier = Modifier.height(16.dp))
-                    CastsSection(movie.credits.cast)
+                    CastsSection(cast.data!!)
                 }
-                movie.overview?.let {
+                movie.overview.let {
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
                         text = "Storyline",
@@ -117,7 +136,7 @@ private fun Content(movie: Movie, onBackClicked: () -> Unit) {
 }
 
 @Composable
-private fun TopBar(movie: Movie, onBackClicked: () -> Unit) {
+private fun TopBar(movie: TmdbMovie, onBackClicked: () -> Unit) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
@@ -150,7 +169,7 @@ private fun TopBar(movie: Movie, onBackClicked: () -> Unit) {
 }
 
 @Composable
-private fun CastsSection(casts: List<Cast>) {
+private fun CastsSection(casts: List<Pair<TmdbPerson.Slim, TmdbPerson.CastRole>>) {
     Text(
         text = "The Cast",
         style = MaterialTheme.typography.subtitle2,
@@ -161,13 +180,13 @@ private fun CastsSection(casts: List<Cast>) {
 }
 
 @Composable
-private fun CastsList(casts: List<Cast>) {
+private fun CastsList(casts: List<Pair<TmdbPerson.Slim, TmdbPerson.CastRole>>) {
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = PaddingValues(horizontal = 16.dp)
     ) {
         items(
-            items = casts.filter { it.profilePath != null }.take(10)
+            items = casts.filter { it.first.profile != null }.take(10)
         ) { cast ->
             CastCard(cast, {})
         }
@@ -176,39 +195,45 @@ private fun CastsList(casts: List<Cast>) {
 
 @Composable
 private fun CastCard(
-    cast: Cast,
-    onClick: (cast: Cast) -> Unit
+    cast: Pair<TmdbPerson.Slim, TmdbPerson.CastRole>,
+    onClick: (cast: TmdbPerson.Slim) -> Unit
 ) {
 
     Column(
-        modifier = Modifier.width(64.dp),
+        modifier = Modifier.width(72.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
             painter = rememberImagePainter(
-                data = cast.profilePath,
-
-                ),
+                data = cast.first.profile?.get(TmdbImage.Quality.PROFILE_W_154),
+            ),
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier
-                .size(64.dp)
+                .size(72.dp)
                 .clip(CircleShape)
+                .background(Color.Gray.copy(alpha = 0.1f))
                 .clickable {
-                    onClick(cast)
+                    onClick(cast.first)
                 }
         )
         Text(
-            text = cast.name,
+            text = cast.first.name,
             textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.caption
+            style = MaterialTheme.typography.caption.copy(fontSize = 10.sp)
         )
     }
 }
 
+@SuppressLint("NewApi")
 @Composable
-private fun PosterSection(modifier: Modifier = Modifier, movie: Movie) {
+private fun PosterSection(
+    modifier: Modifier = Modifier,
+    movie: TmdbMovie,
+    crew: ViewState<List<Pair<TmdbPerson.Slim, TmdbPerson.CrewJob>>>,
+    releaseDates: ViewState<Map<String, List<TmdbReleaseDate>>>,
+) {
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -219,10 +244,10 @@ private fun PosterSection(modifier: Modifier = Modifier, movie: Movie) {
     ) {
         Image(
             painter = rememberImagePainter(
-                data = movie.posterPath,
+                data = movie.poster?.get(TmdbImage.Quality.POSTER_W_500),
                 builder = {
                     crossfade(true)
-                    placeholder(R.drawable.poster_1) // TODO: Remove or change in production
+                    //placeholder(R.drawable.poster_1) // TODO: Remove or change in production
                 }
             ),
             contentDescription = null,
@@ -232,6 +257,7 @@ private fun PosterSection(modifier: Modifier = Modifier, movie: Movie) {
                 .width(140.dp)
                 .aspectRatio(0.69f)
                 .clip(RoundedCornerShape(8.dp))
+                .background(Color.Gray.copy(alpha = 0.1f))
         )
         Column(
             modifier = Modifier.fillMaxWidth(),
@@ -245,25 +271,35 @@ private fun PosterSection(modifier: Modifier = Modifier, movie: Movie) {
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                movie.certification?.let {
-                    Text(
-                        text = it,
-                        style = MaterialTheme.typography.caption,
-                        modifier = Modifier
-                            .border(
-                                width = 1.dp,
-                                color = Color.White,
-                                shape = RoundedCornerShape(4.dp)
-                            )
-                            .padding(horizontal = 4.dp, vertical = 2.dp)
-                    )
+//                var certification = movie.release_dates?.results?.find { it.iso_3166_1 == "US" }?.release_dates?.find { it.certification?.isNotEmpty()!! }?.certification
+                val certification = when (releaseDates) {
+                    is ViewState.Loaded -> {
+                        val cert = releaseDates.data?.get("US")
+                            ?.find { it.certification.isNotEmpty() }?.certification
+                        cert ?: "N/A"
+                    }
+                    else -> "N/A"
                 }
+
                 Text(
-                    text = "${movie.releaseDate.substring(0, 4)} - ${movie.genres?.first()?.name}",
+                    text = certification,
+                    style = MaterialTheme.typography.caption,
+                    modifier = Modifier
+                        .border(
+                            width = 1.dp,
+                            color = Color.White,
+                            shape = RoundedCornerShape(4.dp)
+                        )
+                        .padding(horizontal = 4.dp, vertical = 2.dp)
+                )
+
+                val date = movie.releaseDate?.date?.year
+                Text(
+                    text = "$date",
                     style = MaterialTheme.typography.caption,
                 )
             }
-            movie.genres?.let { genres ->
+            movie.genres.let { genres ->
 
                 Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                     genres.take(3).forEach {
@@ -299,22 +335,12 @@ private fun PosterSection(modifier: Modifier = Modifier, movie: Movie) {
                 text = "Runtime: ${movie.runtime} minutes",
                 style = MaterialTheme.typography.caption,
             )
-            movie.credits?.let { credits ->
+            if (crew is ViewState.Loaded) {
                 Text(
-                    text = "Directed by ${credits.crew.find { it.job.lowercase() == "director" }?.name}",
+                    text = "Directed by ${crew.data?.find { it.second.job.lowercase() == "director" }?.first?.name}",
                     style = MaterialTheme.typography.caption,
                 )
             }
-        }
-    }
-}
-
-@Preview
-@Composable
-fun MovieDetailsScreenPreview() {
-    SomuTheme {
-        Surface {
-            Content(movie = sampleMovie, onBackClicked = {})
         }
     }
 }
