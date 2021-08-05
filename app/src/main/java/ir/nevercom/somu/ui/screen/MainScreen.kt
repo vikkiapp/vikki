@@ -1,20 +1,14 @@
 package ir.nevercom.somu.ui.screen
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.BottomNavigationItem
+import androidx.compose.material.Icon
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -24,26 +18,23 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import coil.compose.rememberImagePainter
-import com.google.accompanist.placeholder.PlaceholderHighlight
-import com.google.accompanist.placeholder.material.placeholder
-import com.google.accompanist.placeholder.material.shimmer
-import ir.nevercom.somu.BuildConfig
+import com.google.accompanist.insets.LocalWindowInsets
+import com.google.accompanist.insets.rememberInsetsPaddingValues
+import com.google.accompanist.insets.ui.BottomNavigation
+import com.google.accompanist.insets.ui.TopAppBar
 import ir.nevercom.somu.R
-import ir.nevercom.somu.ViewState.Loaded
-import ir.nevercom.somu.model.Movie
 import ir.nevercom.somu.ui.Screen
+import ir.nevercom.somu.ui.screen.home.HomeContent
+import ir.nevercom.somu.ui.screen.search.SearchScreen
 import ir.nevercom.somu.ui.theme.SomuTheme
 import ir.nevercom.somu.ui.theme.bgColorEdge
-import org.koin.androidx.compose.getViewModel
 
 @Composable
-fun MainScreen(onMovieClicked: (movie: Movie) -> Unit) {
+fun MainScreen(onMovieClicked: (movieId: Int) -> Unit) {
     val navController = rememberNavController()
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentDestination = navBackStackEntry?.destination
     val screens = listOf(
         Screen.Home,
+        Screen.Search,
         Screen.Friends,
         Screen.Profile
     )
@@ -53,48 +44,49 @@ fun MainScreen(onMovieClicked: (movie: Movie) -> Unit) {
                 title = { Text(stringResource(id = R.string.app_name)) },
                 backgroundColor = Color.Transparent,
                 contentColor = Color.White,
-                elevation = 0.dp
+                elevation = 0.dp,
+                contentPadding = rememberInsetsPaddingValues(
+                    insets = LocalWindowInsets.current.statusBars,
+                    applyStart = true,
+                    applyTop = true,
+                    applyEnd = true,
+                )
             )
         },
         bottomBar = {
-            // [Problem]: Have a Fullscreen Composable, inside Scaffold, just to make use of single
-            // Navigation stack.
-            //
-            // [Workaround]: This workaround is just for testing purpose.
-            // It seems that it's not possible to make two separate NavHost to interconnect,
-            // or to share a single NavController.
-            // This workaround hides BottomNavigation (and AppBar if needed) to mimic a fullscreen
-            // Composable, and still place that Composable inside current NavHost, living inside
-            // the Scaffold.
-            // To test this just navigate to "full" route, when `onMovieClicked` lambda is triggered.
-            if (currentDestination?.route in screens.associateBy { it.route }) {
-                BottomNavigation(backgroundColor = bgColorEdge, contentColor = Color.White) {
-//                val navBackStackEntry by navController.currentBackStackEntryAsState()
-//                val currentDestination = navBackStackEntry?.destination
-                    screens.forEach { screen ->
-                        BottomNavigationItem(
-                            icon = { Icon(screen.icon, contentDescription = null) },
-                            label = { Text(screen.title) },
-                            selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
-                            onClick = {
-                                navController.navigate(screen.route) {
-                                    // Pop up to the start destination of the graph to
-                                    // avoid building up a large stack of destinations
-                                    // on the back stack as users select items
-                                    popUpTo(navController.graph.findStartDestination().id) {
-                                        saveState = true
-                                    }
-                                    // Avoid multiple copies of the same destination when
-                                    // reselecting the same item
-                                    launchSingleTop = true
-                                    // Restore state when reselecting a previously selected item
-                                    restoreState = true
+            BottomNavigation(
+                backgroundColor = bgColorEdge,
+                contentColor = Color.White,
+                contentPadding = rememberInsetsPaddingValues(
+                    LocalWindowInsets.current.navigationBars
+                )
+            ) {
+                val navBackStackEntry by navController.currentBackStackEntryAsState()
+                val currentDestination = navBackStackEntry?.destination
+                screens.forEach { screen ->
+                    BottomNavigationItem(
+                        icon = { Icon(screen.icon, contentDescription = null) },
+                        label = { Text(screen.title) },
+                        selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
+                        onClick = {
+                            navController.navigate(screen.route) {
+                                // Pop up to the start destination of the graph to
+                                // avoid building up a large stack of destinations
+                                // on the back stack as users select items
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
                                 }
+                                // Avoid multiple copies of the same destination when
+                                // reselecting the same item
+                                launchSingleTop = true
+                                // Restore state when reselecting a previously selected item
+                                restoreState = true
                             }
-                        )
-                    }
+                        }
+                    )
                 }
             }
+
         }
     ) { innerPadding ->
         NavHost(
@@ -104,6 +96,9 @@ fun MainScreen(onMovieClicked: (movie: Movie) -> Unit) {
         ) {
             composable(Screen.Home.route) {
                 HomeContent(onMovieClicked = onMovieClicked)
+            }
+            composable(Screen.Search.route) {
+                SearchScreen(onMovieClicked = onMovieClicked)
             }
             composable(Screen.Friends.route) { Text("Friends") }
             composable(Screen.Profile.route) { Text("Profile") }
