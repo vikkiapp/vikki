@@ -1,6 +1,5 @@
 package ir.nevercom.somu
 
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -20,18 +19,20 @@ import androidx.navigation.compose.navArgument
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.insets.ProvideWindowInsets
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import dagger.hilt.android.AndroidEntryPoint
 import ir.nevercom.somu.model.ModelPreferencesManager
 import ir.nevercom.somu.repositories.UserRepository
 import ir.nevercom.somu.ui.screen.MainScreen
 import ir.nevercom.somu.ui.screen.login.LoginScreen
 import ir.nevercom.somu.ui.screen.movieDetails.MovieDetailsScreen
-import ir.nevercom.somu.ui.screen.movieDetails.MovieDetailsViewModel
 import ir.nevercom.somu.ui.theme.SomuTheme
-import org.koin.android.ext.android.get
-import org.koin.androidx.viewmodel.ext.android.getViewModel
-import org.koin.core.parameter.parametersOf
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var userRepository: UserRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,7 +63,7 @@ class MainActivity : ComponentActivity() {
                         color = MaterialTheme.colors.background,
                         modifier = Modifier.fillMaxSize()
                     ) {
-                        AppContent()
+                        AppContent(userRepository)
                     }
                 }
             }
@@ -70,21 +71,21 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    private fun AppContent(userRepository: UserRepository = get()) {
+    private fun AppContent(userRepository: UserRepository) {
         val navController = rememberNavController()
 
         val startDestination = if (userRepository.isLoggedIn()) "main" else "login"
         NavHost(navController = navController, startDestination = startDestination) {
             composable("main") {
                 MainScreen(onMovieClicked = { id ->
-                    startActivity(
-                        Intent(
-                            this@MainActivity,
-                            MovieDetailsActivity::class.java
-                        ).putExtra("movieId", id)
-                    )
+//                    startActivity(
+//                        Intent(
+//                            this@MainActivity,
+//                            MovieDetailsActivity::class.java
+//                        ).putExtra("movieId", id)
+//                    )
                     Log.d("onMovieClicked", "Id: $id")
-                    //navController.navigate("details/movie/$id")
+                    navController.navigate("details/movie/$id")
                 })
             }
             composable("login") {
@@ -101,13 +102,14 @@ class MainActivity : ComponentActivity() {
                 route = "details/movie/{id}",
                 arguments = listOf(navArgument("id") { type = NavType.IntType })
             ) { backStackEntry ->
-
-                val movieId = backStackEntry.arguments?.getInt("id")
-                Log.d("MovieDetailsComposable", "Id: $id")
-                val viewModel: MovieDetailsViewModel = getViewModel { parametersOf(movieId) }
+//
+//                val movieId = backStackEntry.arguments?.getInt("id")
+//                Log.d("MovieDetailsComposable", "Id: $id")
+//                val viewModel: MovieDetailsViewModel = getViewModel { parametersOf(movieId) }
                 MovieDetailsScreen(
-                    viewModel = viewModel,
-                    onBackClicked = { navController.popBackStack() })
+                    //viewModel = viewModel,
+                    onBackClicked = { navController.popBackStack() }
+                )
             }
         }
     }

@@ -3,8 +3,10 @@ package ir.nevercom.somu.util
 import ir.nevercom.somu.repositories.UserRepository
 import okhttp3.Interceptor
 import okhttp3.Response
+import javax.inject.Inject
 
-class AuthInterceptor(private val userRepository: UserRepository) : Interceptor {
+class AuthInterceptor @Inject constructor(private val userRepository: UserRepository) :
+    Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         var req = chain.request()
         req = req.newBuilder()

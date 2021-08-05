@@ -25,16 +25,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import de.vkay.api.tmdb.models.TmdbImage
 import ir.nevercom.somu.ui.component.MovieCard
 import ir.nevercom.somu.ui.theme.bgColorEdge
 import ir.nevercom.somu.util.ViewState
-import org.koin.androidx.compose.getViewModel
 
 @OptIn(androidx.compose.ui.ExperimentalComposeUiApi::class)
 @Composable
 fun SearchScreen(
-    vm: SearchScreenViewModel = getViewModel(),
+    vm: SearchScreenViewModel = hiltViewModel(),
     onMovieClicked: (movieId: Int) -> Unit
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current

@@ -6,13 +6,17 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.haroldadmin.cnradapter.NetworkResponse
+import dagger.hilt.android.lifecycle.HiltViewModel
 import de.vkay.api.tmdb.TMDb
 import de.vkay.api.tmdb.models.TmdbMovie
 import ir.nevercom.somu.repositories.Api
 import ir.nevercom.somu.util.ViewState
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class HomeViewModel(private val api: Api, private val tmdb: TMDb) : ViewModel() {
+@HiltViewModel
+class HomeViewModel @Inject constructor(private val api: Api, private val tmdb: TMDb) :
+    ViewModel() {
     private val _state: MutableLiveData<HomeViewState> =
         MutableLiveData(HomeViewState(ViewState.Loading()))
     val state: LiveData<HomeViewState> = _state

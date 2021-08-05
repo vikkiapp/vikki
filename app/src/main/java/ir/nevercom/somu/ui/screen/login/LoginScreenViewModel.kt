@@ -5,12 +5,15 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.haroldadmin.cnradapter.NetworkResponse
+import dagger.hilt.android.lifecycle.HiltViewModel
 import ir.nevercom.somu.model.body.Login
 import ir.nevercom.somu.repositories.Api
 import ir.nevercom.somu.repositories.UserRepository
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class LoginScreenViewModel(
+@HiltViewModel
+class LoginScreenViewModel @Inject constructor(
     private val api: Api,
     private val userRepository: UserRepository
 ) : ViewModel() {
