@@ -43,7 +43,8 @@ import ir.nevercom.somu.util.ViewState
 @Composable
 fun MovieDetailsScreen(
     viewModel: MovieDetailsViewModel = hiltViewModel(),
-    onBackClicked: () -> Unit
+    onBackClicked: () -> Unit,
+    onPersonClicked: (Int) -> Unit
 ) {
     val state = viewModel.state.observeAsState()
     val currentState = state.value!!
@@ -57,7 +58,8 @@ fun MovieDetailsScreen(
                     cast = currentState.cast,
                     crew = currentState.crew,
                     releaseDates = currentState.releaseDates,
-                    onBackClicked = onBackClicked
+                    onBackClicked = onBackClicked,
+                    onPersonClicked = onPersonClicked
                 )
             }
             else -> {
@@ -78,7 +80,8 @@ private fun Content(
     cast: ViewState<List<Pair<TmdbPerson.Slim, TmdbPerson.CastRole>>>,
     crew: ViewState<List<Pair<TmdbPerson.Slim, TmdbPerson.CrewJob>>>,
     releaseDates: ViewState<Map<String, List<TmdbReleaseDate>>>,
-    onBackClicked: () -> Unit
+    onBackClicked: () -> Unit,
+    onPersonClicked: (Int) -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -111,7 +114,10 @@ private fun Content(
                 )
                 if (cast is ViewState.Loaded) {
                     Spacer(modifier = Modifier.height(16.dp))
-                    CastsSection(cast.data!!)
+                    CastsSection(
+                        casts = cast.data!!,
+                        onClick = { onPersonClicked(it.id) }
+                    )
                 }
                 movie.overview.let {
                     Spacer(modifier = Modifier.height(16.dp))
@@ -170,18 +176,24 @@ private fun TopBar(movie: TmdbMovie, onBackClicked: () -> Unit) {
 }
 
 @Composable
-private fun CastsSection(casts: List<Pair<TmdbPerson.Slim, TmdbPerson.CastRole>>) {
+private fun CastsSection(
+    casts: List<Pair<TmdbPerson.Slim, TmdbPerson.CastRole>>,
+    onClick: (cast: TmdbPerson.Slim) -> Unit
+) {
     Text(
         text = "The Cast",
         style = MaterialTheme.typography.subtitle2,
         modifier = Modifier.padding(horizontal = 16.dp)
     )
     Spacer(modifier = Modifier.height(8.dp))
-    CastsList(casts)
+    CastsList(casts, onClick)
 }
 
 @Composable
-private fun CastsList(casts: List<Pair<TmdbPerson.Slim, TmdbPerson.CastRole>>) {
+private fun CastsList(
+    casts: List<Pair<TmdbPerson.Slim, TmdbPerson.CastRole>>,
+    onClick: (cast: TmdbPerson.Slim) -> Unit
+) {
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = PaddingValues(horizontal = 16.dp)
@@ -189,7 +201,7 @@ private fun CastsList(casts: List<Pair<TmdbPerson.Slim, TmdbPerson.CastRole>>) {
         items(
             items = casts.filter { it.first.profile != null }.take(10)
         ) { cast ->
-            CastCard(cast, {})
+            CastCard(cast, onClick)
         }
     }
 }

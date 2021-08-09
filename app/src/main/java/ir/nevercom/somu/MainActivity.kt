@@ -24,6 +24,7 @@ import ir.nevercom.somu.repositories.UserRepository
 import ir.nevercom.somu.ui.screen.MainScreen
 import ir.nevercom.somu.ui.screen.login.LoginScreen
 import ir.nevercom.somu.ui.screen.movieDetails.MovieDetailsScreen
+import ir.nevercom.somu.ui.screen.person.PersonScreen
 import ir.nevercom.somu.ui.theme.SomuTheme
 import javax.inject.Inject
 
@@ -76,9 +77,9 @@ class MainActivity : ComponentActivity() {
         val startDestination = if (userRepository.isLoggedIn()) "main" else "login"
         NavHost(navController = navController, startDestination = startDestination) {
             composable("main") {
-                MainScreen(onMovieClicked = { id ->
-                    navController.navigate("details/movie/$id")
-                })
+                MainScreen(
+                    onMovieClicked = { id -> navController.navigate("details/movie/$id") }
+                )
             }
             composable("login") {
                 LoginScreen(
@@ -94,7 +95,18 @@ class MainActivity : ComponentActivity() {
                 arguments = listOf(navArgument("id") { type = NavType.IntType })
             ) {
                 MovieDetailsScreen(
-                    onBackClicked = { navController.popBackStack() }
+                    onBackClicked = { navController.popBackStack() },
+                    onPersonClicked = { id -> navController.navigate("person/$id") }
+                )
+            }
+            composable(
+                route = "person/{id}",
+                arguments = listOf(navArgument("id") { type = NavType.IntType })
+            ) {
+                PersonScreen(
+                    onBackClicked = { navController.popBackStack() },
+                    onMovieClicked = { id -> navController.navigate("details/movie/$id") },
+                    onShowClicked = { id -> },
                 )
             }
         }
