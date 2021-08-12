@@ -46,13 +46,15 @@ fun PersonScreen(
     val state = vm.state.observeAsState()
     val currentState = state.value!!
 
+    currentState.filmsCrew.data?.sortedBy { it.second.department }
     Crossfade(targetState = currentState.details) { detailsState ->
         when (detailsState) {
             is ViewState.Loaded -> {
                 Content(
                     details = currentState.details.data!!,
                     externalIds = currentState.externalIds,
-                    films = currentState.films,
+                    filmsCast = currentState.filmsCast,
+                    filmsCrew = currentState.filmsCrew,
                     onBackClicked = onBackClicked,
                     onMovieClicked = onMovieClicked,
                     onShowClicked = onShowClicked,
@@ -71,7 +73,8 @@ fun PersonScreen(
 private fun Content(
     details: TmdbPerson,
     externalIds: ViewState<TmdbExternalIds>,
-    films: ViewState<List<Pair<MediaTypeItem, TmdbPerson.CastRole>>>,
+    filmsCast: ViewState<List<Pair<MediaTypeItem, TmdbPerson.CastRole>>>,
+    filmsCrew: ViewState<List<Pair<MediaTypeItem, TmdbPerson.CrewJob>>>,
     onBackClicked: () -> Unit,
     onMovieClicked: (movieId: Int) -> Unit,
     onShowClicked: (showId: Int) -> Unit,
@@ -110,12 +113,59 @@ private fun Content(
                 if (details.biography.isNotEmpty()) {
                     BioSection(details)
                 }
-                if (films is ViewState.Loaded) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Filmography",
+                    style = MaterialTheme.typography.h6,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+                if (filmsCast is ViewState.Loaded) {
                     FilmsSection(
-                        filmList = films.data!!,
+                        filmList = filmsCast.data!!,
                         onMovieClicked = onMovieClicked,
                         onShowClicked = onShowClicked,
                     )
+                }
+                if (filmsCrew is ViewState.Loaded) {
+                    val group = filmsCrew.data?.groupBy { it.second.department }
+                    group?.forEach {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = it.key,
+                            style = MaterialTheme.typography.subtitle2,
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            contentPadding = PaddingValues(horizontal = 16.dp)
+                        ) {
+                            items(items = it.value) {
+                                when (it.first) {
+                                    is TmdbMovie.Slim -> {
+                                        val item = it.first as TmdbMovie.Slim
+                                        ExtendedMovieCard(
+                                            url = item.poster?.get(Quality.POSTER_W_185),
+                                            rating = (item.voteAverage / 2).toFloat(),
+                                            tag = it.first.mediaType.name,
+                                            details = it.second.job,
+                                            onClick = { onMovieClicked(item.id) }
+                                        )
+                                    }
+                                    is TmdbShow.Slim -> {
+                                        val item = it.first as TmdbShow.Slim
+                                        ExtendedMovieCard(
+                                            url = item.poster?.get(Quality.POSTER_W_185),
+                                            rating = (item.voteAverage / 2).toFloat(),
+                                            tag = it.first.mediaType.name,
+                                            details = it.second.job,
+                                            onClick = { onShowClicked(item.id) }
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -128,9 +178,9 @@ private fun FilmsSection(
     onMovieClicked: (movieId: Int) -> Unit,
     onShowClicked: (showId: Int) -> Unit,
 ) {
-    Spacer(modifier = Modifier.height(16.dp))
+    Spacer(modifier = Modifier.height(8.dp))
     Text(
-        text = "Films",
+        text = "Acting",
         style = MaterialTheme.typography.subtitle2,
         modifier = Modifier.padding(horizontal = 16.dp)
     )
@@ -143,21 +193,21 @@ private fun FilmsSection(
             when (it.first) {
                 is TmdbMovie.Slim -> {
                     val item = it.first as TmdbMovie.Slim
-                    CharacterMovieCard(
+                    ExtendedMovieCard(
                         url = item.poster?.get(Quality.POSTER_W_185),
                         rating = (item.voteAverage / 2).toFloat(),
-                        mediaType = it.first.mediaType.name,
-                        role = it.second,
+                        tag = it.first.mediaType.name,
+                        details = it.second.character,
                         onClick = { onMovieClicked(item.id) }
                     )
                 }
                 is TmdbShow.Slim -> {
                     val item = it.first as TmdbShow.Slim
-                    CharacterMovieCard(
+                    ExtendedMovieCard(
                         url = item.poster?.get(Quality.POSTER_W_185),
                         rating = (item.voteAverage / 2).toFloat(),
-                        mediaType = it.first.mediaType.name,
-                        role = it.second,
+                        tag = it.first.mediaType.name,
+                        details = it.second.character,
                         onClick = { onShowClicked(item.id) }
                     )
                 }
@@ -167,8 +217,8 @@ private fun FilmsSection(
 }
 
 @Composable
-private fun CharacterMovieCard(
-    url: String?, rating: Float, mediaType: String, role: TmdbPerson.CastRole, onClick: () -> Unit
+private fun ExtendedMovieCard(
+    url: String?, rating: Float, tag: String, details: String, onClick: () -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.width(96.dp)) {
         Box {
@@ -178,7 +228,7 @@ private fun CharacterMovieCard(
                 onClick = onClick
             )
             Text(
-                text = mediaType,
+                text = tag,
                 style = MaterialTheme.typography.caption,
                 modifier = Modifier
                     .padding(4.dp)
@@ -195,7 +245,7 @@ private fun CharacterMovieCard(
             )
         }
         Text(
-            text = role.character,
+            text = details,
             style = MaterialTheme.typography.caption.copy(fontSize = 10.sp),
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth()

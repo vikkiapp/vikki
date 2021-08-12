@@ -1,6 +1,5 @@
 package ir.nevercom.somu.ui.screen.person
 
-import androidx.compose.material.icons.Icons
 import androidx.lifecycle.*
 import com.haroldadmin.cnradapter.NetworkResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -28,7 +27,8 @@ class PersonScreenViewModel @Inject constructor(
         viewModelScope.launch {
             getDetails()
             getExternalIds()
-            getMovies()
+            getMoviesCast()
+            getMoviesCrew()
         }
     }
 
@@ -50,11 +50,21 @@ class PersonScreenViewModel @Inject constructor(
         }
     }
 
-    private suspend fun getMovies() {
-        _state.value = currentState().copy(films = ViewState.Loading())
+    private suspend fun getMoviesCast() {
+        _state.value = currentState().copy(filmsCast = ViewState.Loading())
         when (val response = tmdb.personService.combinedCast(personId)) {
             is NetworkResponse.Success -> {
-                _state.value = currentState().copy(films = ViewState.Loaded(response.body))
+                _state.value = currentState().copy(filmsCast = ViewState.Loaded(response.body))
+            }
+        }
+
+    }
+
+    private suspend fun getMoviesCrew() {
+        _state.value = currentState().copy(filmsCrew = ViewState.Loading())
+        when (val response = tmdb.personService.combinedCrew(personId)) {
+            is NetworkResponse.Success -> {
+                _state.value = currentState().copy(filmsCrew = ViewState.Loaded(response.body))
             }
         }
 
@@ -64,10 +74,12 @@ class PersonScreenViewModel @Inject constructor(
 data class PersonViewState(
     val details: ViewState<TmdbPerson>,
     val externalIds: ViewState<TmdbExternalIds>,
-    val films: ViewState<List<Pair<MediaTypeItem, TmdbPerson.CastRole>>>,
+    val filmsCast: ViewState<List<Pair<MediaTypeItem, TmdbPerson.CastRole>>>,
+    val filmsCrew: ViewState<List<Pair<MediaTypeItem, TmdbPerson.CrewJob>>>,
 ) {
     companion object {
         val Empty = PersonViewState(
+            ViewState.Empty(),
             ViewState.Empty(),
             ViewState.Empty(),
             ViewState.Empty(),
