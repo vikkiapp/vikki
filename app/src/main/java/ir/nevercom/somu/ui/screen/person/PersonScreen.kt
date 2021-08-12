@@ -130,11 +130,17 @@ private fun Content(
                     val group = filmsCrew.data?.groupBy { it.second.department }
                     group?.forEach {
                         Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = it.key,
-                            style = MaterialTheme.typography.subtitle2,
-                            modifier = Modifier.padding(horizontal = 16.dp)
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Text(
+                                text = it.key,
+                                style = MaterialTheme.typography.subtitle2,
+                                modifier = Modifier.padding(start = 16.dp)
+                            )
+                            Divider(color = Color.White.copy(alpha = 0.75f), thickness = 1.dp)
+                        }
                         Spacer(modifier = Modifier.height(8.dp))
                         LazyRow(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -179,11 +185,17 @@ private fun FilmsSection(
     onShowClicked: (showId: Int) -> Unit,
 ) {
     Spacer(modifier = Modifier.height(8.dp))
-    Text(
-        text = "Acting",
-        style = MaterialTheme.typography.subtitle2,
-        modifier = Modifier.padding(horizontal = 16.dp)
-    )
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text(
+            text = "Acting",
+            style = MaterialTheme.typography.subtitle2,
+            modifier = Modifier.padding(start = 16.dp)
+        )
+        Divider(color = Color.White.copy(alpha = 0.75f), thickness = 1.dp)
+    }
     Spacer(modifier = Modifier.height(8.dp))
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
