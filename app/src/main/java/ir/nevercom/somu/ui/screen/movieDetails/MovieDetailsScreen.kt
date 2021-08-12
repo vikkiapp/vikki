@@ -307,8 +307,13 @@ private fun PosterSection(
                 )
 
                 val date = movie.releaseDate?.date?.year
+                val releaseDate = if (date == null || date < 1900) {
+                    movie.status.name.lowercase().replaceFirstChar { it.uppercase() }
+                } else {
+                    date.toString()
+                }
                 Text(
-                    text = "$date",
+                    text = releaseDate,
                     style = MaterialTheme.typography.caption,
                 )
             }
