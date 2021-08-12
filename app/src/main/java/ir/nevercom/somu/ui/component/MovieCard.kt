@@ -2,20 +2,24 @@ package ir.nevercom.somu.ui.component
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.rememberImagePainter
 import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.material.placeholder
@@ -84,6 +88,43 @@ fun MovieCardPlaceHolder() {
             )
     )
 
+}
+
+@Composable
+fun ExtendedMovieCard(
+    url: String?, rating: Float, tag: String, details: String, onClick: () -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.width(96.dp)) {
+        Box {
+            MovieCard(
+                url = url,
+                rating = rating,
+                onClick = onClick
+            )
+            Text(
+                text = tag,
+                style = MaterialTheme.typography.caption,
+                modifier = Modifier
+                    .padding(4.dp)
+                    .background(
+                        color = Color.Gray.copy(alpha = 0.8f),
+                        shape = RoundedCornerShape(4.dp)
+                    )
+                    .border(
+                        width = 1.dp,
+                        color = Color.White,
+                        shape = RoundedCornerShape(4.dp)
+                    )
+                    .padding(horizontal = 4.dp, vertical = 2.dp)
+            )
+        }
+        Text(
+            text = details,
+            style = MaterialTheme.typography.caption.copy(fontSize = 10.sp),
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
 }
 
 @Preview(name = "List of Posters")

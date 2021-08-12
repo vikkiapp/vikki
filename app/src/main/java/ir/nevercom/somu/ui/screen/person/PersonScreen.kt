@@ -19,9 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberImagePainter
 import coil.transform.BlurTransformation
@@ -31,7 +29,7 @@ import de.vkay.api.tmdb.models.*
 import de.vkay.api.tmdb.models.TmdbImage.Quality
 import ir.nevercom.somu.R
 import ir.nevercom.somu.ui.component.ExpandingText
-import ir.nevercom.somu.ui.component.MovieCard
+import ir.nevercom.somu.ui.component.ExtendedMovieCard
 import ir.nevercom.somu.ui.component.SocialMedia
 import ir.nevercom.somu.ui.component.SocialMediaItem
 import ir.nevercom.somu.util.ViewState
@@ -225,43 +223,6 @@ private fun FilmsSection(
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun ExtendedMovieCard(
-    url: String?, rating: Float, tag: String, details: String, onClick: () -> Unit
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.width(96.dp)) {
-        Box {
-            MovieCard(
-                url = url,
-                rating = rating,
-                onClick = onClick
-            )
-            Text(
-                text = tag,
-                style = MaterialTheme.typography.caption,
-                modifier = Modifier
-                    .padding(4.dp)
-                    .background(
-                        color = Color.Gray.copy(alpha = 0.8f),
-                        shape = RoundedCornerShape(4.dp)
-                    )
-                    .border(
-                        width = 1.dp,
-                        color = Color.White,
-                        shape = RoundedCornerShape(4.dp)
-                    )
-                    .padding(horizontal = 4.dp, vertical = 2.dp)
-            )
-        }
-        Text(
-            text = details,
-            style = MaterialTheme.typography.caption.copy(fontSize = 10.sp),
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth()
-        )
     }
 }
 
