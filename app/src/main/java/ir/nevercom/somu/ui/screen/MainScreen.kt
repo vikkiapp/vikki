@@ -23,7 +23,7 @@ import com.google.accompanist.insets.rememberInsetsPaddingValues
 import com.google.accompanist.insets.ui.BottomNavigation
 import com.google.accompanist.insets.ui.TopAppBar
 import ir.nevercom.somu.R
-import ir.nevercom.somu.ui.Screen
+import ir.nevercom.somu.ui.NavScreen
 import ir.nevercom.somu.ui.screen.home.HomeContent
 import ir.nevercom.somu.ui.screen.search.SearchScreen
 import ir.nevercom.somu.ui.theme.SomuTheme
@@ -32,11 +32,11 @@ import ir.nevercom.somu.ui.theme.bgColorEdge
 @Composable
 fun MainScreen(onMovieClicked: (movieId: Int) -> Unit) {
     val navController = rememberNavController()
-    val screens = listOf(
-        Screen.Home,
-        Screen.Search,
-        Screen.Friends,
-        Screen.Profile
+    val navScreens = listOf(
+        NavScreen.Home,
+        NavScreen.Search,
+        NavScreen.Friends,
+        NavScreen.Profile
     )
     Scaffold(
         topBar = {
@@ -63,7 +63,7 @@ fun MainScreen(onMovieClicked: (movieId: Int) -> Unit) {
             ) {
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentDestination = navBackStackEntry?.destination
-                screens.forEach { screen ->
+                navScreens.forEach { screen ->
                     BottomNavigationItem(
                         icon = { Icon(screen.icon, contentDescription = null) },
                         label = { Text(screen.title) },
@@ -94,17 +94,17 @@ fun MainScreen(onMovieClicked: (movieId: Int) -> Unit) {
     ) { innerPadding ->
         NavHost(
             navController,
-            startDestination = Screen.Home.route,
+            startDestination = NavScreen.Home.route,
             Modifier.padding(innerPadding)
         ) {
-            composable(Screen.Home.route) {
+            composable(NavScreen.Home.route) {
                 HomeContent(onMovieClicked = onMovieClicked)
             }
-            composable(Screen.Search.route) {
+            composable(NavScreen.Search.route) {
                 SearchScreen(onMovieClicked = onMovieClicked)
             }
-            composable(Screen.Friends.route) { Text("Friends") }
-            composable(Screen.Profile.route) { Text("Profile") }
+            composable(NavScreen.Friends.route) { Text("Friends") }
+            composable(NavScreen.Profile.route) { Text("Profile") }
         }
     }
 }

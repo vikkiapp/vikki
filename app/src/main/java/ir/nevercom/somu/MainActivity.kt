@@ -21,6 +21,7 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.android.AndroidEntryPoint
 import ir.nevercom.somu.model.ModelPreferencesManager
 import ir.nevercom.somu.repositories.UserRepository
+import ir.nevercom.somu.ui.Screen
 import ir.nevercom.somu.ui.screen.MainScreen
 import ir.nevercom.somu.ui.screen.login.LoginScreen
 import ir.nevercom.somu.ui.screen.movieDetails.MovieDetailsScreen
@@ -78,34 +79,40 @@ class MainActivity : ComponentActivity() {
         NavHost(navController = navController, startDestination = startDestination) {
             composable("main") {
                 MainScreen(
-                    onMovieClicked = { id -> navController.navigate("details/movie/$id") }
+                    onMovieClicked = { id ->
+                        navController.navigate(Screen.MovieDetails.createRoute(id))
+                    }
                 )
             }
-            composable("login") {
+            composable(Screen.Login.route) {
                 LoginScreen(
                     onLoggedIn = {
                         navController.navigate("main") {
-                            popUpTo("login") { inclusive = true }
+                            popUpTo(Screen.Login.route) { inclusive = true }
                         }
                     }
                 )
             }
             composable(
-                route = "details/movie/{id}",
+                route = Screen.MovieDetails.route,
                 arguments = listOf(navArgument("id") { type = NavType.IntType })
             ) {
                 MovieDetailsScreen(
                     onBackClicked = { navController.popBackStack() },
-                    onPersonClicked = { id -> navController.navigate("person/$id") }
+                    onPersonClicked = { id ->
+                        navController.navigate(Screen.PersonDetails.createRoute(id))
+                    }
                 )
             }
             composable(
-                route = "person/{id}",
+                route = Screen.PersonDetails.route,
                 arguments = listOf(navArgument("id") { type = NavType.IntType })
             ) {
                 PersonScreen(
                     onBackClicked = { navController.popBackStack() },
-                    onMovieClicked = { id -> navController.navigate("details/movie/$id") },
+                    onMovieClicked = { id ->
+                        navController.navigate(Screen.MovieDetails.createRoute(id))
+                    },
                     onShowClicked = { id -> },
                 )
             }
