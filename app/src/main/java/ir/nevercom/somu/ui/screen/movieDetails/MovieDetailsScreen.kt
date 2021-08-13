@@ -6,7 +6,6 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -35,6 +34,7 @@ import de.vkay.api.tmdb.models.TmdbMovie
 import de.vkay.api.tmdb.models.TmdbPerson
 import de.vkay.api.tmdb.models.TmdbReleaseDate
 import ir.nevercom.somu.R
+import ir.nevercom.somu.ui.component.CastCard
 import ir.nevercom.somu.ui.component.RatingBar
 import ir.nevercom.somu.ui.theme.darkRed
 import ir.nevercom.somu.ui.theme.lightOrange
@@ -201,41 +201,12 @@ private fun CastsList(
         items(
             items = casts.filter { it.first.profile != null }.take(10)
         ) { cast ->
-            CastCard(cast, onClick)
+            CastCard(
+                profileUrl = cast.first.profile?.get(TmdbImage.Quality.PROFILE_W_154),
+                name = cast.first.name,
+                onClick = { onClick(cast.first) }
+            )
         }
-    }
-}
-
-@Composable
-private fun CastCard(
-    cast: Pair<TmdbPerson.Slim, TmdbPerson.CastRole>,
-    onClick: (cast: TmdbPerson.Slim) -> Unit
-) {
-
-    Column(
-        modifier = Modifier.width(72.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Image(
-            painter = rememberImagePainter(
-                data = cast.first.profile?.get(TmdbImage.Quality.PROFILE_W_154),
-            ),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .size(72.dp)
-                .clip(CircleShape)
-                .background(Color.Gray.copy(alpha = 0.1f))
-                .clickable {
-                    onClick(cast.first)
-                }
-        )
-        Text(
-            text = cast.first.name,
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.caption.copy(fontSize = 10.sp)
-        )
     }
 }
 
