@@ -127,6 +127,12 @@ fun MainScreen(userRepository: UserRepository) {
                 SearchScreen(
                     onMovieClicked = { id ->
                         navController.navigate(Screen.MovieDetails.createRoute(id))
+                    },
+                    onShowClicked = { id ->
+                        TODO("Implement Show Screen")
+                    },
+                    onPersonClicked = { id ->
+                        navController.navigate(Screen.PersonDetails.createRoute(id))
                     }
                 )
             }

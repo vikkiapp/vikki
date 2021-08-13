@@ -7,7 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.haroldadmin.cnradapter.NetworkResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import de.vkay.api.tmdb.TMDb
-import de.vkay.api.tmdb.models.TmdbMovie
+import de.vkay.api.tmdb.models.MediaTypeItem
 import de.vkay.api.tmdb.models.TmdbPage
 import ir.nevercom.somu.util.ViewState
 import kotlinx.coroutines.launch
@@ -21,11 +21,10 @@ class SearchScreenViewModel @Inject constructor(private val tmdb: TMDb) : ViewMo
     val state: LiveData<SearchViewState> = _state
 
     fun search(query: String, page: Int = 1) {
-        if (_state.value?.movies is ViewState.Empty) {
-            _state.value = SearchViewState(ViewState.Loading())
-        }
+        _state.value = SearchViewState(ViewState.Loading())
+
         viewModelScope.launch {
-            when (val response = tmdb.searchService.movie(query = query, page = page)) {
+            when (val response = tmdb.searchService.multi(query = query, page = page)) {
                 is NetworkResponse.Success -> {
                     _state.value = SearchViewState(ViewState.Loaded(response.body))
                 }
@@ -35,5 +34,5 @@ class SearchScreenViewModel @Inject constructor(private val tmdb: TMDb) : ViewMo
 }
 
 data class SearchViewState(
-    val movies: ViewState<TmdbPage<TmdbMovie.Slim>>
+    val result: ViewState<TmdbPage<MediaTypeItem>>
 )
