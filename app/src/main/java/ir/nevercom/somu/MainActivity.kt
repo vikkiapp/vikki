@@ -6,26 +6,16 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.core.view.WindowCompat
-import androidx.navigation.NavType
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.navArgument
-import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.insets.ProvideWindowInsets
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.android.AndroidEntryPoint
 import ir.nevercom.somu.model.ModelPreferencesManager
 import ir.nevercom.somu.repositories.UserRepository
-import ir.nevercom.somu.ui.Screen
 import ir.nevercom.somu.ui.screen.MainScreen
-import ir.nevercom.somu.ui.screen.login.LoginScreen
-import ir.nevercom.somu.ui.screen.movieDetails.MovieDetailsScreen
-import ir.nevercom.somu.ui.screen.person.PersonScreen
 import ir.nevercom.somu.ui.theme.SomuTheme
 import javax.inject.Inject
 
@@ -64,57 +54,9 @@ class MainActivity : ComponentActivity() {
                         color = MaterialTheme.colors.background,
                         modifier = Modifier.fillMaxSize()
                     ) {
-                        AppContent(userRepository)
+                        MainScreen(userRepository)
                     }
                 }
-            }
-        }
-    }
-
-    @Composable
-    private fun AppContent(userRepository: UserRepository) {
-        val navController = rememberNavController()
-
-        val startDestination = if (userRepository.isLoggedIn()) "main" else "login"
-        NavHost(navController = navController, startDestination = startDestination) {
-            composable("main") {
-                MainScreen(
-                    onMovieClicked = { id ->
-                        navController.navigate(Screen.MovieDetails.createRoute(id))
-                    }
-                )
-            }
-            composable(Screen.Login.route) {
-                LoginScreen(
-                    onLoggedIn = {
-                        navController.navigate("main") {
-                            popUpTo(Screen.Login.route) { inclusive = true }
-                        }
-                    }
-                )
-            }
-            composable(
-                route = Screen.MovieDetails.route,
-                arguments = listOf(navArgument("id") { type = NavType.IntType })
-            ) {
-                MovieDetailsScreen(
-                    onBackClicked = { navController.popBackStack() },
-                    onPersonClicked = { id ->
-                        navController.navigate(Screen.PersonDetails.createRoute(id))
-                    }
-                )
-            }
-            composable(
-                route = Screen.PersonDetails.route,
-                arguments = listOf(navArgument("id") { type = NavType.IntType })
-            ) {
-                PersonScreen(
-                    onBackClicked = { navController.popBackStack() },
-                    onMovieClicked = { id ->
-                        navController.navigate(Screen.MovieDetails.createRoute(id))
-                    },
-                    onShowClicked = { id -> },
-                )
             }
         }
     }
