@@ -97,13 +97,16 @@ fun MainScreen(userRepository: UserRepository) {
             }
         }
     ) { innerPadding ->
+        val startDestination = if (userRepository.isLoggedIn()) {
+            NavScreen.Home.route
+        } else {
+            Screen.Login.route
+        }
         NavHost(
             navController,
-            startDestination = NavScreen.Home.route,
+            startDestination = startDestination,
             Modifier.padding(innerPadding)
         ) {
-            val startDestination =
-                if (userRepository.isLoggedIn()) NavScreen.Home.route else Screen.Login.route
             composable(Screen.Login.route) {
                 LoginScreen(
                     onLoggedIn = {
