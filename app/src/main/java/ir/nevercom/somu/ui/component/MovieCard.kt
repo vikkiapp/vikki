@@ -24,7 +24,6 @@ import coil.compose.rememberImagePainter
 import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.material.placeholder
 import com.google.accompanist.placeholder.material.shimmer
-import ir.nevercom.somu.BuildConfig
 import ir.nevercom.somu.R
 import ir.nevercom.somu.ui.theme.SomuTheme
 
@@ -38,21 +37,12 @@ fun MovieCard(url: String?, rating: Float = 0.0f, onClick: () -> Unit) {
             .background(Color.Gray.copy(alpha = 0.1f))
             .clickable(onClick = onClick)
     ) {
-        val previewPlaceholder = if (BuildConfig.DEBUG) {
-            listOf(
-                R.drawable.poster_1,
-                R.drawable.poster_2,
-                R.drawable.poster_3,
-                R.drawable.poster_4
-            ).random()
-        } else {
-            0
-        }
         Image(
             painter = rememberImagePainter(
                 data = url,
                 builder = {
-                    //placeholder(previewPlaceholder)
+                    error(R.drawable.no_image)
+                    fallback(R.drawable.no_image)
                 }
             ),
             contentDescription = null,
@@ -156,6 +146,19 @@ fun MoviePosterPreview() {
             modifier = Modifier.padding(16.dp)
         ) {
             MovieCard("", 3.5f) {}
+        }
+    }
+}
+
+@Preview(name = "Extended")
+@Composable
+fun ExtendedMoviePosterPreview() {
+    SomuTheme {
+        Surface(
+            color = MaterialTheme.colors.background,
+            modifier = Modifier.padding(16.dp)
+        ) {
+            ExtendedMovieCard("", 4f, "Movie", "John Doe") {}
         }
     }
 }

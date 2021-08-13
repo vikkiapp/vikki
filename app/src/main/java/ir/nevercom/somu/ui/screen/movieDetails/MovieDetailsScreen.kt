@@ -260,7 +260,8 @@ private fun PosterSection(
                 data = movie.poster?.get(TmdbImage.Quality.POSTER_W_500),
                 builder = {
                     crossfade(true)
-                    //placeholder(R.drawable.poster_1) // TODO: Remove or change in production
+                    error(R.drawable.no_image)
+                    fallback(R.drawable.no_image)
                 }
             ),
             contentDescription = null,
