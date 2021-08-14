@@ -11,8 +11,11 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -21,14 +24,15 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import de.vkay.api.tmdb.models.TmdbImage
-import de.vkay.api.tmdb.models.TmdbMovie
-import de.vkay.api.tmdb.models.TmdbPerson
-import de.vkay.api.tmdb.models.TmdbShow
+import com.google.accompanist.pager.HorizontalPager
+import com.google.accompanist.pager.pagerTabIndicatorOffset
+import com.google.accompanist.pager.rememberPagerState
+import de.vkay.api.tmdb.models.*
 import ir.nevercom.somu.ui.component.CastCard
 import ir.nevercom.somu.ui.component.MovieCard
 import ir.nevercom.somu.ui.theme.bgColorEdge
 import ir.nevercom.somu.util.ViewState
+import kotlinx.coroutines.launch
 
 @OptIn(androidx.compose.ui.ExperimentalComposeUiApi::class)
 @Composable
@@ -103,7 +107,7 @@ fun SearchScreen(
 }
 
 //TODO: Search Screen UI/UX needs serious Attention, Code is messy and should be cleaned up
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, com.google.accompanist.pager.ExperimentalPagerApi::class)
 @Composable
 private fun MovieGrid(
     currentState: SearchViewState,
@@ -114,6 +118,9 @@ private fun MovieGrid(
     val movies = mutableListOf<TmdbMovie.Slim>()
     val shows = mutableListOf<TmdbShow.Slim>()
     val persons = mutableListOf<TmdbPerson.Slim>()
+
+    val list = mutableMapOf<String, List<MediaTypeItem>>()
+
     currentState.result.data?.results?.forEach {
         when (it) {
             is TmdbMovie.Slim -> movies.add(it)
@@ -121,81 +128,100 @@ private fun MovieGrid(
             is TmdbPerson.Slim -> persons.add(it)
         }
     }
-    var state by remember { mutableStateOf(0) }
-    if (movies.size > 0 || shows.size > 0 || persons.size > 0) {
+    if (movies.isNotEmpty()) {
+        list["Movies"] = movies
+    }
+    if (shows.isNotEmpty()) {
+        list["Shows"] = shows
+    }
+    if (persons.isNotEmpty()) {
+        list["People"] = persons
+    }
+    val pagerState = rememberPagerState(pageCount = list.size)
+    if (list.isNotEmpty()) {
         Column(modifier = Modifier.fillMaxSize()) {
+            val coroutineScope = rememberCoroutineScope()
+
             Spacer(modifier = Modifier.height(16.dp))
-            TabRow(selectedTabIndex = state, modifier = Modifier.padding(horizontal = 16.dp)) {
-                if (movies.size > 0) {
-                    Tab(
-                        text = { Text("Movies (${movies.size})") },
-                        selected = state == 0,
-                        onClick = { state = 0 }
+            TabRow(
+                selectedTabIndex = pagerState.currentPage,
+                backgroundColor = MaterialTheme.colors.background.copy(alpha = 0.5f),
+                indicator = { tabPositions ->
+                    TabRowDefaults.Indicator(
+                        Modifier.pagerTabIndicatorOffset(pagerState, tabPositions)
                     )
-                }
-                if (shows.size > 0) {
+                },
+                modifier = Modifier.padding(horizontal = 16.dp),
+            ) {
+                list.entries.forEachIndexed { index, entry ->
                     Tab(
-                        text = { Text("Shows (${shows.size})") },
-                        selected = state == 1,
-                        onClick = { state = 1 }
-                    )
-                }
-                if (persons.size > 0) {
-                    Tab(
-                        text = { Text("People (${persons.size})") },
-                        selected = state == 2,
-                        onClick = { state = 2 }
+                        text = { Text("${entry.key} (${entry.value.size})") },
+                        selected = pagerState.currentPage == index,
+                        onClick = {
+                            coroutineScope.launch {
+                                pagerState.animateScrollToPage(index)
+                            }
+                        }
                     )
                 }
             }
-            when (state) {
-                0 -> {
-                    LazyVerticalGrid(
-                        cells = GridCells.Fixed(4),
-                        modifier = Modifier.padding(horizontal = 12.dp),
-                        contentPadding = PaddingValues(vertical = 16.dp)
-                    ) {
-                        items(items = movies) {
-                            Box(modifier = Modifier.padding(4.dp)) {
-                                MovieCard(
-                                    url = it.poster?.get(TmdbImage.Quality.POSTER_W_185),
-                                    onClick = { onMovieClicked(it.id) },
-                                    rating = (it.voteAverage / 2).toFloat()
-                                )
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier.fillMaxSize(),
+                verticalAlignment = Alignment.Top
+            ) { page ->
+
+                when (list.keys.toTypedArray()[page]) {
+                    "Movies" -> {
+                        LazyVerticalGrid(
+                            cells = GridCells.Fixed(4),
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(horizontal = 12.dp),
+                            contentPadding = PaddingValues(vertical = 16.dp)
+                        ) {
+                            items(items = movies) {
+                                Box(modifier = Modifier.padding(4.dp)) {
+                                    MovieCard(
+                                        url = it.poster?.get(TmdbImage.Quality.POSTER_W_185),
+                                        onClick = { onMovieClicked(it.id) },
+                                        rating = (it.voteAverage / 2).toFloat()
+                                    )
+                                }
                             }
                         }
                     }
-                }
-                1 -> {
-                    LazyVerticalGrid(
-                        cells = GridCells.Fixed(4),
-                        modifier = Modifier.padding(horizontal = 12.dp),
-                        contentPadding = PaddingValues(vertical = 16.dp)
-                    ) {
-                        items(items = shows) {
-                            Box(modifier = Modifier.padding(4.dp)) {
-                                MovieCard(
-                                    url = it.poster?.get(TmdbImage.Quality.POSTER_W_185),
-                                    onClick = { onShowClicked(it.id) },
-                                    rating = (it.voteAverage / 2).toFloat()
-                                )
+                    "Shows" -> {
+                        LazyVerticalGrid(
+                            cells = GridCells.Fixed(4),
+                            modifier = Modifier.padding(horizontal = 12.dp),
+                            contentPadding = PaddingValues(vertical = 16.dp)
+                        ) {
+                            items(items = shows) {
+                                Box(modifier = Modifier.padding(4.dp)) {
+                                    MovieCard(
+                                        url = it.poster?.get(TmdbImage.Quality.POSTER_W_185),
+                                        onClick = { onShowClicked(it.id) },
+                                        rating = (it.voteAverage / 2).toFloat()
+                                    )
+                                }
                             }
                         }
                     }
-                }
-                2 -> {
-                    LazyVerticalGrid(
-                        cells = GridCells.Fixed(4),
-                        modifier = Modifier.padding(horizontal = 12.dp),
-                        contentPadding = PaddingValues(vertical = 16.dp)
-                    ) {
-                        items(items = persons) {
-                            Box(modifier = Modifier.padding(4.dp)) {
-                                CastCard(
-                                    profileUrl = it.profile?.get(TmdbImage.Quality.PROFILE_W_154),
-                                    onClick = { onPersonClicked(it.id) },
-                                    name = it.name
-                                )
+                    "People" -> {
+                        LazyVerticalGrid(
+                            cells = GridCells.Fixed(4),
+                            modifier = Modifier.padding(horizontal = 12.dp),
+                            contentPadding = PaddingValues(vertical = 16.dp)
+                        ) {
+                            items(items = persons) {
+                                Box(modifier = Modifier.padding(4.dp)) {
+                                    CastCard(
+                                        profileUrl = it.profile?.get(TmdbImage.Quality.PROFILE_W_154),
+                                        onClick = { onPersonClicked(it.id) },
+                                        name = it.name
+                                    )
+                                }
                             }
                         }
                     }
