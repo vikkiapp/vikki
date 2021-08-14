@@ -20,6 +20,10 @@ sealed class Screen(val route: String) {
         fun createRoute(id: Int): String = "details/movie/$id"
     }
 
+    object ShowDetails : Screen("details/show/{id}") {
+        fun createRoute(id: Int): String = "details/show/$id"
+    }
+
     object PersonDetails : Screen("person/{id}") {
         fun createRoute(id: Int): String = "person/$id"
     }

@@ -28,6 +28,7 @@ import ir.nevercom.somu.ui.screen.login.LoginScreen
 import ir.nevercom.somu.ui.screen.movieDetails.MovieDetailsScreen
 import ir.nevercom.somu.ui.screen.person.PersonScreen
 import ir.nevercom.somu.ui.screen.search.SearchScreen
+import ir.nevercom.somu.ui.screen.showDetails.ShowDetailsScreen
 import ir.nevercom.somu.ui.theme.bgColorEdge
 
 @Composable
@@ -129,7 +130,7 @@ fun MainScreen(userRepository: UserRepository) {
                         navController.navigate(Screen.MovieDetails.createRoute(id))
                     },
                     onShowClicked = { id ->
-                        TODO("Implement Show Screen")
+                        navController.navigate(Screen.ShowDetails.createRoute(id))
                     },
                     onPersonClicked = { id ->
                         navController.navigate(Screen.PersonDetails.createRoute(id))
@@ -150,6 +151,17 @@ fun MainScreen(userRepository: UserRepository) {
                 )
             }
             composable(
+                route = Screen.ShowDetails.route,
+                arguments = listOf(navArgument("id") { type = NavType.IntType })
+            ) {
+                ShowDetailsScreen(
+                    onBackClicked = { navController.popBackStack() },
+                    onPersonClicked = { id ->
+                        navController.navigate(Screen.PersonDetails.createRoute(id))
+                    }
+                )
+            }
+            composable(
                 route = Screen.PersonDetails.route,
                 arguments = listOf(navArgument("id") { type = NavType.IntType })
             ) {
@@ -158,7 +170,9 @@ fun MainScreen(userRepository: UserRepository) {
                     onMovieClicked = { id ->
                         navController.navigate(Screen.MovieDetails.createRoute(id))
                     },
-                    onShowClicked = { id -> },
+                    onShowClicked = { id ->
+                        navController.navigate(Screen.ShowDetails.createRoute(id))
+                    },
                 )
             }
         }
