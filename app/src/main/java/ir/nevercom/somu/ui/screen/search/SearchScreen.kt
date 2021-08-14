@@ -107,7 +107,7 @@ fun SearchScreen(
 }
 
 //TODO: Search Screen UI/UX needs serious Attention, Code is messy and should be cleaned up
-@OptIn(ExperimentalFoundationApi::class, com.google.accompanist.pager.ExperimentalPagerApi::class)
+@OptIn(com.google.accompanist.pager.ExperimentalPagerApi::class)
 @Composable
 private fun MovieGrid(
     currentState: SearchViewState,
@@ -170,65 +170,68 @@ private fun MovieGrid(
                 modifier = Modifier.fillMaxSize(),
                 verticalAlignment = Alignment.Top
             ) { page ->
-
-                when (list.keys.toTypedArray()[page]) {
-                    "Movies" -> {
-                        LazyVerticalGrid(
-                            cells = GridCells.Fixed(4),
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(horizontal = 12.dp),
-                            contentPadding = PaddingValues(vertical = 16.dp)
-                        ) {
-                            items(items = movies) {
-                                Box(modifier = Modifier.padding(4.dp)) {
-                                    MovieCard(
-                                        url = it.poster?.get(TmdbImage.Quality.POSTER_W_185),
-                                        onClick = { onMovieClicked(it.id) },
-                                        rating = (it.voteAverage / 2).toFloat()
-                                    )
-                                }
-                            }
-                        }
-                    }
-                    "Shows" -> {
-                        LazyVerticalGrid(
-                            cells = GridCells.Fixed(4),
-                            modifier = Modifier.padding(horizontal = 12.dp),
-                            contentPadding = PaddingValues(vertical = 16.dp)
-                        ) {
-                            items(items = shows) {
-                                Box(modifier = Modifier.padding(4.dp)) {
-                                    MovieCard(
-                                        url = it.poster?.get(TmdbImage.Quality.POSTER_W_185),
-                                        onClick = { onShowClicked(it.id) },
-                                        rating = (it.voteAverage / 2).toFloat()
-                                    )
-                                }
-                            }
-                        }
-                    }
-                    "People" -> {
-                        LazyVerticalGrid(
-                            cells = GridCells.Fixed(4),
-                            modifier = Modifier.padding(horizontal = 12.dp),
-                            contentPadding = PaddingValues(vertical = 16.dp)
-                        ) {
-                            items(items = persons) {
-                                Box(modifier = Modifier.padding(4.dp)) {
-                                    CastCard(
-                                        profileUrl = it.profile?.get(TmdbImage.Quality.PROFILE_W_154),
-                                        onClick = { onPersonClicked(it.id) },
-                                        name = it.name
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
+                TabContent(list, page, onMovieClicked, onShowClicked, onPersonClicked)
             }
         }
     }
 
 
+}
+
+@Composable
+private fun TabContent(
+    list: MutableMap<String, List<MediaTypeItem>>,
+    page: Int,
+    onMovieClicked: (id: Int) -> Unit,
+    onShowClicked: (id: Int) -> Unit,
+    onPersonClicked: (id: Int) -> Unit
+) {
+    when (val key = list.keys.toTypedArray()[page]) {
+        "Movies" -> {
+            Grid(items = list[key] as List<TmdbMovie.Slim>) {
+                MovieCard(
+                    url = it.poster?.get(TmdbImage.Quality.POSTER_W_185),
+                    onClick = { onMovieClicked(it.id) },
+                    rating = (it.voteAverage / 2).toFloat()
+                )
+            }
+        }
+        "Shows" -> {
+            Grid(items = list[key] as List<TmdbShow.Slim>) {
+                MovieCard(
+                    url = it.poster?.get(TmdbImage.Quality.POSTER_W_185),
+                    onClick = { onShowClicked(it.id) },
+                    rating = (it.voteAverage / 2).toFloat()
+                )
+            }
+        }
+        "People" -> {
+            Grid(items = list[key] as List<TmdbPerson.Slim>) {
+                CastCard(
+                    profileUrl = it.profile?.get(TmdbImage.Quality.PROFILE_W_154),
+                    onClick = { onPersonClicked(it.id) },
+                    name = it.name
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun <T> Grid(
+    items: List<T>,
+    content: @Composable (item: T) -> Unit
+) {
+    LazyVerticalGrid(
+        cells = GridCells.Fixed(4),
+        modifier = Modifier.padding(horizontal = 12.dp),
+        contentPadding = PaddingValues(vertical = 16.dp)
+    ) {
+        items(items = items) {
+            Box(modifier = Modifier.padding(4.dp)) {
+                content(it)
+            }
+        }
+    }
 }
