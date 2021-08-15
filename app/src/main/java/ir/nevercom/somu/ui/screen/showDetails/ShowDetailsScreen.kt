@@ -85,21 +85,8 @@ private fun Content(
             .fillMaxSize()
             .background(colorResource(id = R.color.gray))
     ) {
-        Image(
-            painter = rememberImagePainter(
-                data = show.poster?.get(TmdbImage.Quality.POSTER_W_185),
-                builder = {
-                    crossfade(true)
-                    //placeholder(R.drawable.poster_1_blur) // TODO: Remove or change in production
-                    transformations(BlurTransformation(LocalContext.current, 15f, 3f))
-                }
-            ),
-            contentDescription = null,
-            modifier = Modifier
-                .fillMaxSize()
-                .alpha(0.7f),
-            contentScale = ContentScale.Crop,
-        )
+        Background(show.poster?.get(TmdbImage.Quality.POSTER_W_185))
+
         Column(modifier = Modifier.fillMaxSize()) {
             TopBar(show = show, onBackClicked = onBackClicked)
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
@@ -137,6 +124,24 @@ private fun Content(
 
         }
     }
+}
+
+@Composable
+private fun Background(url: String?) {
+    Image(
+        painter = rememberImagePainter(
+            data = url,
+            builder = {
+                crossfade(true)
+                transformations(BlurTransformation(LocalContext.current, 15f, 3f))
+            }
+        ),
+        contentDescription = null,
+        modifier = Modifier
+            .fillMaxSize()
+            .alpha(0.7f),
+        contentScale = ContentScale.Crop,
+    )
 }
 
 @Composable
@@ -218,29 +223,11 @@ private fun PosterSection(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-        //.clip(RoundedCornerShape(8.dp)).background(Color.Gray.copy(alpha = 0.1f))
-        ,
+            .padding(horizontal = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Image(
-            painter = rememberImagePainter(
-                data = show.poster?.get(TmdbImage.Quality.POSTER_W_500),
-                builder = {
-                    crossfade(true)
-                    error(R.drawable.no_image)
-                    fallback(R.drawable.no_image)
-                }
-            ),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .border(2.dp, Color.White.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
-                .width(140.dp)
-                .aspectRatio(0.69f)
-                .clip(RoundedCornerShape(8.dp))
-                .background(Color.Gray.copy(alpha = 0.1f))
-        )
+        Poster(show.poster?.get(TmdbImage.Quality.POSTER_W_500))
+
         Column(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -249,83 +236,26 @@ private fun PosterSection(
                 text = show.title,
                 style = MaterialTheme.typography.h6
             )
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                val certification = when (ratings) {
-                    is ViewState.Loaded -> {
-                        val data = ratings.data
-                        if (data != null && data.isNotEmpty()) {
-                            val cert = data.find { it.countryCode == "US" }?.rating
-                            cert ?: data.first().rating
-                        } else {
-                            "N/A"
-                        }
 
-                    }
-                    else -> "N/A"
-                }
+            CertificationAndDate(ratings, show)
 
-                Text(
-                    text = certification,
-                    style = MaterialTheme.typography.caption,
-                    modifier = Modifier
-                        .border(
-                            width = 1.dp,
-                            color = Color.White,
-                            shape = RoundedCornerShape(4.dp)
-                        )
-                        .padding(horizontal = 4.dp, vertical = 2.dp)
-                )
-
-                val firstDate = show.firstAirDate?.date
-                val lastDate = show.latestAirDate?.date
-
-                val releaseDate = "${firstDate?.year} - ${lastDate?.year} (${
-                    show.currentStatus.name.lowercase().replaceFirstChar { it.uppercase() }
-                })"
-                Text(
-                    text = releaseDate,
-                    style = MaterialTheme.typography.caption,
-                )
-            }
             show.genres.let { genres ->
 
                 Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                     genres.take(3).forEach {
-                        Text(
-                            text = it.name,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier
-                                .background(color = darkRed, shape = RoundedCornerShape(16.dp))
-                                .padding(horizontal = 6.dp, vertical = 2.dp)
-                                .height(16.dp),
-                            style = MaterialTheme.typography.caption.copy(
-                                fontSize = 10.sp
-                            )
-                        )
+                        Pill(it.name)
                     }
                 }
 
             }
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                RatingBar(
-                    rating = (show.voteAverage / 2).toFloat(),
-                    modifier = Modifier.height(20.dp),
-                    color = lightOrange
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "(${show.voteAverage})",
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.caption,
-                )
-            }
+
+            Rating(show)
+
             Text(
                 text = "Runtime: ${show.runtime} minutes",
                 style = MaterialTheme.typography.caption,
             )
+
             if (crew is ViewState.Loaded) {
                 val creator = crew.data?.find { it.second.job.lowercase() == "creator" }
                 val director = creator?.first?.name
@@ -337,5 +267,107 @@ private fun PosterSection(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun Poster(url: String?) {
+    Image(
+        painter = rememberImagePainter(
+            data = url,
+            builder = {
+                crossfade(true)
+                error(R.drawable.no_image)
+                fallback(R.drawable.no_image)
+            }
+        ),
+        contentDescription = null,
+        contentScale = ContentScale.Crop,
+        modifier = Modifier
+            .border(2.dp, Color.White.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
+            .width(140.dp)
+            .aspectRatio(0.69f)
+            .clip(RoundedCornerShape(8.dp))
+            .background(Color.Gray.copy(alpha = 0.1f))
+    )
+}
+
+@Composable
+private fun Pill(text: String) {
+    Text(
+        text = text,
+        textAlign = TextAlign.Center,
+        modifier = Modifier
+            .background(color = darkRed, shape = RoundedCornerShape(16.dp))
+            .padding(horizontal = 6.dp, vertical = 2.dp)
+            .height(16.dp),
+        style = MaterialTheme.typography.caption.copy(
+            fontSize = 10.sp
+        )
+    )
+}
+
+@Composable
+private fun Rating(show: TmdbShow) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        RatingBar(
+            rating = (show.voteAverage / 2).toFloat(),
+            modifier = Modifier.height(20.dp),
+            color = lightOrange
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            text = "(${show.voteAverage})",
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.caption,
+        )
+    }
+}
+
+@Composable
+private fun CertificationAndDate(
+    ratings: ViewState<List<TmdbContentRating>>,
+    show: TmdbShow
+) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        val certification = when (ratings) {
+            is ViewState.Loaded -> {
+                val data = ratings.data
+                if (data != null && data.isNotEmpty()) {
+                    val cert = data.find { it.countryCode == "US" }?.rating
+                    cert ?: data.first().rating
+                } else {
+                    "N/A"
+                }
+
+            }
+            else -> "N/A"
+        }
+
+        Text(
+            text = certification,
+            style = MaterialTheme.typography.caption,
+            modifier = Modifier
+                .border(
+                    width = 1.dp,
+                    color = Color.White,
+                    shape = RoundedCornerShape(4.dp)
+                )
+                .padding(horizontal = 4.dp, vertical = 2.dp)
+        )
+
+        val firstDate = show.firstAirDate?.date
+        val lastDate = show.latestAirDate?.date
+
+        val releaseDate = "${firstDate?.year} - ${lastDate?.year} (${
+            show.currentStatus.name.lowercase().replaceFirstChar { it.uppercase() }
+        })"
+        Text(
+            text = releaseDate,
+            style = MaterialTheme.typography.caption,
+        )
     }
 }
