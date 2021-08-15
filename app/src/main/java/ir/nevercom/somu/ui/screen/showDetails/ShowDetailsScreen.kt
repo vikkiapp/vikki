@@ -20,7 +20,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -161,18 +160,12 @@ private fun TopBar(show: TmdbShow, onBackClicked: () -> Unit) {
                 contentDescription = "Back Button"
             )
         }
-        show.tagline?.let {
-            Text(
-                text = it.uppercase(),
-                modifier = Modifier
-                    .fillMaxWidth(),
-                textAlign = TextAlign.Center,
-                fontWeight = FontWeight.Bold,
-                color = Color.White.copy(alpha = 0.4f),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
+        Text(
+            text = show.title,
+            style = MaterialTheme.typography.h6,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
 
     }
 }
@@ -233,8 +226,8 @@ private fun PosterSection(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Text(
-                text = show.title,
-                style = MaterialTheme.typography.h6
+                text = "${show.numberOfSeasons} Seasons (${show.numberOfEpisodes} episodes)",
+                style = MaterialTheme.typography.caption
             )
 
             CertificationAndDate(ratings, show)
@@ -324,6 +317,7 @@ private fun Rating(show: TmdbShow) {
     }
 }
 
+@SuppressLint("NewApi")
 @Composable
 private fun CertificationAndDate(
     ratings: ViewState<List<TmdbContentRating>>,
