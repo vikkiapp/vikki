@@ -1,6 +1,5 @@
 package ir.nevercom.somu.ui.screen.showDetails
 
-import android.util.Log
 import androidx.lifecycle.*
 import com.haroldadmin.cnradapter.NetworkResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -32,22 +31,13 @@ class ShowDetailsViewModel @Inject constructor(
     }
 
     init {
-        viewModelScope.launch {
-            getDetails()
-        }
-        viewModelScope.launch {
-            getCast()
-        }
-        viewModelScope.launch {
-            getCrew()
-        }
-        viewModelScope.launch {
-            getRatings()
-        }
+        getDetails()
+        getCast()
+        getCrew()
+        getRatings()
     }
 
-    private suspend fun getDetails() {
-        Log.d(TAG, "getDetails: ")
+    private fun getDetails() = viewModelScope.launch {
         _state.value = currentState().copy(details = ViewState.Loading())
         when (val response = tmdb.showService.details(showId)) {
             is NetworkResponse.Success -> {
@@ -55,44 +45,36 @@ class ShowDetailsViewModel @Inject constructor(
                 getEpisodes(response.body)
             }
         }
-        Log.d(TAG, "getDetails: Finished")
     }
 
-    private suspend fun getCast() {
-        Log.d(TAG, "getCast: ")
+    private fun getCast() = viewModelScope.launch {
         _state.value = currentState().copy(cast = ViewState.Loading())
         when (val response = tmdb.showService.cast(showId)) {
             is NetworkResponse.Success -> {
                 _state.value = currentState().copy(cast = ViewState.Loaded(response.body))
             }
         }
-        Log.d(TAG, "getCast: Finished")
     }
 
-    private suspend fun getCrew() {
-        Log.d(TAG, "getCrew: ")
+    private fun getCrew() = viewModelScope.launch {
         _state.value = currentState().copy(crew = ViewState.Loading())
         when (val response = tmdb.showService.aggregateCrew(showId)) {
             is NetworkResponse.Success -> {
                 _state.value = currentState().copy(crew = ViewState.Loaded(response.body))
             }
         }
-        Log.d(TAG, "getCrew: Finished")
     }
 
-    private suspend fun getRatings() {
-        Log.d(TAG, "getRatings: ")
+    private fun getRatings() = viewModelScope.launch {
         _state.value = currentState().copy(ratings = ViewState.Loading())
         when (val response = tmdb.showService.contentRatings(showId)) {
             is NetworkResponse.Success -> {
                 _state.value = currentState().copy(ratings = ViewState.Loaded(response.body))
             }
         }
-        Log.d(TAG, "getRatings: Finished")
     }
 
-    private suspend fun getEpisodes(show: TmdbShow) {
-        Log.d(TAG, "getEpisodes: ")
+    private fun getEpisodes(show: TmdbShow) = viewModelScope.launch {
         _state.value = currentState().copy(episodes = ViewState.Loading())
         val list = mutableMapOf<Int, List<TmdbEpisode.Slim>>()
 
@@ -110,7 +92,6 @@ class ShowDetailsViewModel @Inject constructor(
         }
 
         _state.value = currentState().copy(episodes = ViewState.Loaded(list))
-        Log.d(TAG, "getEpisodes: Finished")
     }
 
 }

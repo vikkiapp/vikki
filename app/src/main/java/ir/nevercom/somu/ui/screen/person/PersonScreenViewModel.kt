@@ -24,15 +24,13 @@ class PersonScreenViewModel @Inject constructor(
     private fun currentState(): PersonViewState = _state.value!!
 
     init {
-        viewModelScope.launch {
-            getDetails()
-            getExternalIds()
-            getMoviesCast()
-            getMoviesCrew()
-        }
+        getDetails()
+        getExternalIds()
+        getMoviesCast()
+        getMoviesCrew()
     }
 
-    private suspend fun getDetails() {
+    private fun getDetails() = viewModelScope.launch {
         _state.value = currentState().copy(details = ViewState.Loading())
         when (val response = tmdb.personService.details(personId)) {
             is NetworkResponse.Success -> {
@@ -41,7 +39,7 @@ class PersonScreenViewModel @Inject constructor(
         }
     }
 
-    private suspend fun getExternalIds() {
+    private fun getExternalIds() = viewModelScope.launch {
         _state.value = currentState().copy(externalIds = ViewState.Loading())
         when (val response = tmdb.personService.externalIds(personId)) {
             is NetworkResponse.Success -> {
@@ -50,7 +48,7 @@ class PersonScreenViewModel @Inject constructor(
         }
     }
 
-    private suspend fun getMoviesCast() {
+    private fun getMoviesCast() = viewModelScope.launch {
         _state.value = currentState().copy(filmsCast = ViewState.Loading())
         when (val response = tmdb.personService.combinedCast(personId)) {
             is NetworkResponse.Success -> {
@@ -60,7 +58,7 @@ class PersonScreenViewModel @Inject constructor(
 
     }
 
-    private suspend fun getMoviesCrew() {
+    private fun getMoviesCrew() = viewModelScope.launch {
         _state.value = currentState().copy(filmsCrew = ViewState.Loading())
         when (val response = tmdb.personService.combinedCrew(personId)) {
             is NetworkResponse.Success -> {

@@ -23,33 +23,31 @@ class LoginScreenViewModel @Inject constructor(
 
     private fun currentState(): LoginViewState = _viewState.value!!
 
-    fun login(email: String, password: String) {
+    fun login(email: String, password: String) = viewModelScope.launch {
         _viewState.value = currentState().copy(isLoading = true, isLoggedIn = false)
-        viewModelScope.launch {
-            when (val response = api.login(Login(email, password))) {
+        when (val response = api.login(Login(email, password))) {
 
-                is NetworkResponse.Success -> {
+            is NetworkResponse.Success -> {
 
-                    userRepository.saveToken(response.body.token)
-                    userRepository.saveUser(response.body.user)
+                userRepository.saveToken(response.body.token)
+                userRepository.saveUser(response.body.user)
 
-                    _viewState.value = currentState().copy(
-                        isLoading = false,
-                        isLoggedIn = true,
-                        errorMessage = null
-                    )
-                }
-                is NetworkResponse.ServerError -> _viewState.value = currentState().copy(
+                _viewState.value = currentState().copy(
                     isLoading = false,
-                    isLoggedIn = false,
-                    errorMessage = response.body?.errorMessage ?: "Something went wrong"
-                )
-                else -> _viewState.value = currentState().copy(
-                    isLoading = false,
-                    isLoggedIn = false,
-                    errorMessage = "Unknown error"
+                    isLoggedIn = true,
+                    errorMessage = null
                 )
             }
+            is NetworkResponse.ServerError -> _viewState.value = currentState().copy(
+                isLoading = false,
+                isLoggedIn = false,
+                errorMessage = response.body?.errorMessage ?: "Something went wrong"
+            )
+            else -> _viewState.value = currentState().copy(
+                isLoading = false,
+                isLoggedIn = false,
+                errorMessage = "Unknown error"
+            )
         }
     }
 }

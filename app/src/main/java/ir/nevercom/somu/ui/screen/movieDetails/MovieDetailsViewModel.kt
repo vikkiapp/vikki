@@ -25,16 +25,13 @@ class MovieDetailsViewModel @Inject constructor(
     private fun currentState(): MovieDetailsViewState = _state.value!!
 
     init {
-        Log.d("MovieDetailsViewModel", "Movie Id: $movieId")
-        viewModelScope.launch {
-            getMovieInfo()
-            getCast()
-            getCrew()
-            getCertifications()
-        }
+        getMovieInfo()
+        getCast()
+        getCrew()
+        getCertifications()
     }
 
-    private suspend fun getMovieInfo() {
+    private fun getMovieInfo() = viewModelScope.launch {
         _state.value = currentState().copy(movie = ViewState.Loading())
         when (val response = tmdb.movieService.details(movieId)) {
             is NetworkResponse.Success -> {
@@ -44,7 +41,7 @@ class MovieDetailsViewModel @Inject constructor(
 
     }
 
-    private suspend fun getCast() {
+    private fun getCast() = viewModelScope.launch {
         _state.value = currentState().copy(cast = ViewState.Loading())
         when (val response = tmdb.movieService.cast(movieId)) {
             is NetworkResponse.Success -> {
@@ -54,7 +51,7 @@ class MovieDetailsViewModel @Inject constructor(
 
     }
 
-    private suspend fun getCrew() {
+    private fun getCrew() = viewModelScope.launch {
         _state.value = currentState().copy(crew = ViewState.Loading())
         when (val response = tmdb.movieService.crew(movieId)) {
             is NetworkResponse.Success -> {
@@ -64,7 +61,7 @@ class MovieDetailsViewModel @Inject constructor(
 
     }
 
-    private suspend fun getCertifications() {
+    private fun getCertifications() = viewModelScope.launch {
         _state.value = currentState().copy(releaseDates = ViewState.Loading())
         when (val response = tmdb.movieService.releaseDates(movieId)) {
             is NetworkResponse.Success -> {

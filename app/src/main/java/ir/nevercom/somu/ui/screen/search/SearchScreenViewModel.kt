@@ -20,14 +20,12 @@ class SearchScreenViewModel @Inject constructor(private val tmdb: TMDb) : ViewMo
 
     val state: LiveData<SearchViewState> = _state
 
-    fun search(query: String, page: Int = 1) {
+    fun search(query: String, page: Int = 1) = viewModelScope.launch {
         _state.value = SearchViewState(ViewState.Loading())
 
-        viewModelScope.launch {
-            when (val response = tmdb.searchService.multi(query = query, page = page)) {
-                is NetworkResponse.Success -> {
-                    _state.value = SearchViewState(ViewState.Loaded(response.body))
-                }
+        when (val response = tmdb.searchService.multi(query = query, page = page)) {
+            is NetworkResponse.Success -> {
+                _state.value = SearchViewState(ViewState.Loaded(response.body))
             }
         }
     }

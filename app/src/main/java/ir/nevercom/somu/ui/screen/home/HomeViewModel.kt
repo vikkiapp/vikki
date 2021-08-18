@@ -1,6 +1,5 @@
 package ir.nevercom.somu.ui.screen.home
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -52,16 +51,12 @@ class HomeViewModel @Inject constructor(private val api: Api, private val tmdb: 
 //        }
 //    }
 
-    fun getList() {
-        Log.d("TAG", "getList: ")
-        viewModelScope.launch {
-            when (val response = tmdb.searchService.movie(query = "god")) {
-                is NetworkResponse.Success -> {
-                    _state.value = HomeViewState(ViewState.Loaded(response.body.results))
-                }
+    fun getList() = viewModelScope.launch {
+        when (val response = tmdb.searchService.movie(query = "god")) {
+            is NetworkResponse.Success -> {
+                _state.value = HomeViewState(ViewState.Loaded(response.body.results))
             }
         }
-
     }
 }
 
