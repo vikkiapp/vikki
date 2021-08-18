@@ -20,7 +20,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -159,18 +158,15 @@ private fun TopBar(movie: TmdbMovie, onBackClicked: () -> Unit) {
                 contentDescription = "Back Button"
             )
         }
-        movie.tagline?.let {
+
             Text(
-                text = it.uppercase(),
-                modifier = Modifier
-                    .fillMaxWidth(),
-                textAlign = TextAlign.Center,
-                fontWeight = FontWeight.Bold,
-                color = Color.White.copy(alpha = 0.4f),
+                text = movie.title,
+                modifier = Modifier.fillMaxWidth(),
+                style = MaterialTheme.typography.h6,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
-        }
+
 
     }
 }
@@ -248,10 +244,6 @@ private fun PosterSection(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text(
-                text = movie.title,
-                style = MaterialTheme.typography.h6
-            )
             Row(
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalAlignment = Alignment.CenterVertically
