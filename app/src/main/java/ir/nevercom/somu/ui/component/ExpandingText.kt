@@ -66,7 +66,7 @@ fun ExpandingText(
                 }
             }
         )
-        if (!expanded) {
+        if (!expanded && expandable && canTextExpand) {
             Icon(
                 imageVector = Icons.Filled.MoreHoriz,
                 contentDescription = "Click to expand or collapse",
