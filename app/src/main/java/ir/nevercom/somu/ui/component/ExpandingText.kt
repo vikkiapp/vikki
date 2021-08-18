@@ -19,8 +19,6 @@ package ir.nevercom.somu.ui.component
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
@@ -30,11 +28,10 @@ import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import ir.nevercom.somu.util.noRippleClickable
 
 @Composable
 fun ExpandingText(
@@ -76,25 +73,5 @@ fun ExpandingText(
                 modifier = Modifier.align(CenterHorizontally)
             )
         }
-    }
-}
-
-/**
- * Taken from: [https://stackoverflow.com/a/66839858/1686304]
- */
-inline fun Modifier.noRippleClickable(
-    enabled: Boolean = true,
-    onClickLabel: String? = null,
-    role: Role? = null,
-    crossinline onClick: () -> Unit
-): Modifier = composed {
-    clickable(
-        indication = null,
-        interactionSource = remember { MutableInteractionSource() },
-        enabled = enabled,
-        onClickLabel = onClickLabel,
-        role = role,
-    ) {
-        onClick()
     }
 }

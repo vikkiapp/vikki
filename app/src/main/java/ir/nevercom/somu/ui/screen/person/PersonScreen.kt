@@ -33,6 +33,7 @@ import ir.nevercom.somu.ui.component.ExtendedMovieCard
 import ir.nevercom.somu.ui.component.SocialMedia
 import ir.nevercom.somu.ui.component.SocialMediaItem
 import ir.nevercom.somu.util.ViewState
+import ir.nevercom.somu.util.ifNotEmpty
 
 @Composable
 fun PersonScreen(
@@ -341,11 +342,5 @@ private fun SummarySection(
             }
 
         }
-    }
-}
-
-inline fun String?.ifNotEmpty(crossinline block: (String) -> Unit) {
-    if (this != null && this.isNotEmpty()) {
-        block(this)
     }
 }
