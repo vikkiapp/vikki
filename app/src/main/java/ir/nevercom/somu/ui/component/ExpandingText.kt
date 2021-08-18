@@ -37,7 +37,7 @@ import ir.nevercom.somu.util.noRippleClickable
 fun ExpandingText(
     text: String,
     modifier: Modifier = Modifier,
-    textStyle: TextStyle = MaterialTheme.typography.body2,
+    style: TextStyle = MaterialTheme.typography.body2,
     textAlign: TextAlign? = null,
     expandable: Boolean = true,
     collapsedMaxLines: Int = 4,
@@ -49,7 +49,7 @@ fun ExpandingText(
     Column {
         Text(
             text = text,
-            style = textStyle,
+            style = style,
             textAlign = textAlign,
             overflow = TextOverflow.Ellipsis,
             maxLines = if (expanded) expandedMaxLines else collapsedMaxLines,
