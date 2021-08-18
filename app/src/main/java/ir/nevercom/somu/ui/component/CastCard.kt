@@ -3,10 +3,7 @@ package ir.nevercom.somu.ui.component
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -33,20 +30,28 @@ fun CastCard(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Image(
-            painter = rememberImagePainter(
-                data = profileUrl,
-            ),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
+        Box(
             modifier = Modifier
                 .size(72.dp)
                 .clip(CircleShape)
                 .background(Color.Gray.copy(alpha = 0.1f))
                 .clickable {
                     onClick()
-                }
-        )
+                },
+            contentAlignment = Alignment.Center
+
+        ) {
+            Text(
+                text = name.initials()
+            )
+            Image(
+                painter = rememberImagePainter(
+                    data = profileUrl,
+                ),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+            )
+        }
         Text(
             text = name,
             textAlign = TextAlign.Center,
@@ -54,3 +59,7 @@ fun CastCard(
         )
     }
 }
+
+fun String.initials() =
+    this.split(Regex("(\\s)+"), limit = 2)
+        .joinToString(separator = "") { it.first().uppercase() }
