@@ -191,6 +191,7 @@ private fun TabContent(
             Grid(items = list[key] as List<TmdbMovie.Slim>) {
                 MovieCard(
                     url = it.poster?.get(TmdbImage.Quality.POSTER_W_185),
+                    title = it.title,
                     onClick = { onMovieClicked(it.id) },
                     rating = (it.voteAverage / 2).toFloat()
                 )
@@ -200,6 +201,7 @@ private fun TabContent(
             Grid(items = list[key] as List<TmdbShow.Slim>) {
                 MovieCard(
                     url = it.poster?.get(TmdbImage.Quality.POSTER_W_185),
+                    title = it.title,
                     onClick = { onShowClicked(it.id) },
                     rating = (it.voteAverage / 2).toFloat()
                 )

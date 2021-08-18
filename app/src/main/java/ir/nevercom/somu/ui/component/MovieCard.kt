@@ -28,7 +28,7 @@ import ir.nevercom.somu.R
 import ir.nevercom.somu.ui.theme.SomuTheme
 
 @Composable
-fun MovieCard(url: String?, rating: Float = 0.0f, onClick: () -> Unit) {
+fun MovieCard(url: String?, title: String = "", rating: Float = 0.0f, onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .width(96.dp)
@@ -37,6 +37,12 @@ fun MovieCard(url: String?, rating: Float = 0.0f, onClick: () -> Unit) {
             .background(Color.Gray.copy(alpha = 0.1f))
             .clickable(onClick = onClick)
     ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.caption,
+            modifier = Modifier.align(Alignment.Center),
+            textAlign = TextAlign.Center
+        )
         Image(
             painter = rememberImagePainter(
                 data = url,
@@ -128,7 +134,10 @@ fun MoviePosterListPreview() {
                 contentPadding = PaddingValues(16.dp)
             ) {
                 items(6) {
-                    MovieCard("", 4f) {}
+                    MovieCard(
+                        url = "",
+                        rating = 4f
+                    ) {}
                 }
 
             }
@@ -145,7 +154,7 @@ fun MoviePosterPreview() {
             color = MaterialTheme.colors.background,
             modifier = Modifier.padding(16.dp)
         ) {
-            MovieCard("", 3.5f) {}
+            MovieCard(url = "", rating = 3.5f) {}
         }
     }
 }
