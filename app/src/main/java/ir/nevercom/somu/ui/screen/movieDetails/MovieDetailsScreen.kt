@@ -34,6 +34,7 @@ import de.vkay.api.tmdb.models.TmdbPerson
 import de.vkay.api.tmdb.models.TmdbReleaseDate
 import ir.nevercom.somu.R
 import ir.nevercom.somu.ui.component.CastCard
+import ir.nevercom.somu.ui.component.ExpandingText
 import ir.nevercom.somu.ui.component.RatingBar
 import ir.nevercom.somu.ui.theme.darkRed
 import ir.nevercom.somu.ui.theme.lightOrange
@@ -126,10 +127,9 @@ private fun Content(
                         modifier = Modifier.padding(horizontal = 16.dp)
                     )
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text(
+                    ExpandingText(
                         text = movie.overview,
                         style = MaterialTheme.typography.body2,
-                        textAlign = TextAlign.Justify,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp),
@@ -159,13 +159,13 @@ private fun TopBar(movie: TmdbMovie, onBackClicked: () -> Unit) {
             )
         }
 
-            Text(
-                text = movie.title,
-                modifier = Modifier.fillMaxWidth(),
-                style = MaterialTheme.typography.h6,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+        Text(
+            text = movie.title,
+            modifier = Modifier.fillMaxWidth(),
+            style = MaterialTheme.typography.h6,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
 
 
     }

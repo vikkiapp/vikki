@@ -238,8 +238,7 @@ private fun BioSection(details: TmdbPerson) {
     Spacer(modifier = Modifier.height(8.dp))
     ExpandingText(
         text = details.biography,
-        textStyle = MaterialTheme.typography.body2,
-        //textAlign = TextAlign.Justify,
+        style = MaterialTheme.typography.body2,
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp),

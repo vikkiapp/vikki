@@ -34,6 +34,7 @@ import com.google.accompanist.insets.statusBarsPadding
 import de.vkay.api.tmdb.models.*
 import ir.nevercom.somu.R
 import ir.nevercom.somu.ui.component.CastCard
+import ir.nevercom.somu.ui.component.ExpandingText
 import ir.nevercom.somu.ui.component.RatingBar
 import ir.nevercom.somu.ui.theme.darkRed
 import ir.nevercom.somu.ui.theme.lightOrange
@@ -116,10 +117,9 @@ internal fun ShowDetailsScreen(
                         modifier = Modifier.padding(horizontal = 16.dp)
                     )
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text(
+                    ExpandingText(
                         text = show.overview,
                         style = MaterialTheme.typography.body2,
-                        textAlign = TextAlign.Justify,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp),
