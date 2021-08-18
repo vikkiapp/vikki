@@ -326,20 +326,26 @@ private fun SummarySection(
             }
             if (externalIds is ViewState.Loaded) {
                 val data = externalIds.data!!
-                data.imdb?.let {
+                data.imdb.ifNotEmpty {
                     SocialMediaItem(handle = it, type = SocialMedia.IMDB)
                 }
-                data.instagram?.let {
+                data.instagram.ifNotEmpty {
                     SocialMediaItem(handle = it, type = SocialMedia.INSTAGRAM)
                 }
-                data.twitter?.let {
+                data.twitter.ifNotEmpty {
                     SocialMediaItem(handle = it, type = SocialMedia.TWITTER)
                 }
-                data.facebook?.let {
+                data.facebook.ifNotEmpty {
                     SocialMediaItem(handle = it, type = SocialMedia.FACEBOOK)
                 }
             }
 
         }
+    }
+}
+
+inline fun String?.ifNotEmpty(crossinline block: (String) -> Unit) {
+    if (this != null && this.isNotEmpty()) {
+        block(this)
     }
 }
