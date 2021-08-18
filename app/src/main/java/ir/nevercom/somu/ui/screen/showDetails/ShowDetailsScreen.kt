@@ -1,7 +1,9 @@
 package ir.nevercom.somu.ui.screen.showDetails
 
 import android.annotation.SuppressLint
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -10,7 +12,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,11 +29,9 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberImagePainter
 import coil.transform.BlurTransformation
+import com.google.accompanist.insets.navigationBarsPadding
 import com.google.accompanist.insets.statusBarsPadding
-import de.vkay.api.tmdb.models.TmdbContentRating
-import de.vkay.api.tmdb.models.TmdbImage
-import de.vkay.api.tmdb.models.TmdbPerson
-import de.vkay.api.tmdb.models.TmdbShow
+import de.vkay.api.tmdb.models.*
 import ir.nevercom.somu.R
 import ir.nevercom.somu.ui.component.CastCard
 import ir.nevercom.somu.ui.component.RatingBar
@@ -52,11 +52,12 @@ fun ShowDetailsScreen(
     Crossfade(targetState = currentState.details) { showState ->
         when (showState) {
             is ViewState.Loaded -> {
-                Content(
+                ShowDetailsScreen(
                     show = showState.data!!,
                     cast = currentState.cast,
                     crew = currentState.crew,
                     ratings = currentState.ratings,
+                    episodes = currentState.episodes,
                     onBackClicked = onBackClicked,
                     onPersonClicked = onPersonClicked
                 )
@@ -71,11 +72,12 @@ fun ShowDetailsScreen(
 }
 
 @Composable
-private fun Content(
+internal fun ShowDetailsScreen(
     show: TmdbShow,
     cast: ViewState<List<Pair<TmdbPerson.Slim, TmdbPerson.CastRole>>>,
     crew: ViewState<List<Pair<TmdbPerson.Slim, TmdbPerson.CrewJob>>>,
     ratings: ViewState<List<TmdbContentRating>>,
+    episodes: ViewState<Map<Int, List<TmdbEpisode.Slim>>>,
     onBackClicked: () -> Unit,
     onPersonClicked: (Int) -> Unit,
 ) {
@@ -88,7 +90,11 @@ private fun Content(
 
         Column(modifier = Modifier.fillMaxSize()) {
             TopBar(show = show, onBackClicked = onBackClicked)
-            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+            Column(
+                modifier = Modifier
+                    .verticalScroll(rememberScrollState())
+                    .navigationBarsPadding()
+            ) {
                 PosterSection(
                     show = show,
                     crew = crew,
@@ -119,8 +125,77 @@ private fun Content(
                             .padding(horizontal = 16.dp),
                     )
                 }
+                SeasonSection(episodes, show)
             }
 
+        }
+    }
+}
+
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+private fun SeasonSection(
+    episodes: ViewState<Map<Int, List<TmdbEpisode.Slim>>>,
+    show: TmdbShow
+) {
+    if (episodes is ViewState.Loaded) {
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = "Seasons",
+            style = MaterialTheme.typography.subtitle2,
+            modifier = Modifier.padding(horizontal = 16.dp)
+        )
+        show.seasons.forEach { season ->
+            Spacer(modifier = Modifier.height(16.dp))
+
+            var visible by remember { mutableStateOf(false) }
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+            ) {
+
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color.Gray.copy(alpha = 0.25f))
+                        .clickable {
+                            visible = visible.not()
+                        }
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        text = "${season.title} (${season.episodeCount} episodes)",
+                        style = MaterialTheme.typography.body2,
+                    )
+                    Text(
+                        text = "Aired: ${season.airDate?.localize()}",
+                        style = MaterialTheme.typography.caption
+                    )
+                }
+                val episodeList = episodes.data!![season.seasonId]!!
+                AnimatedVisibility(visible = visible) {
+
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Color.Gray.copy(alpha = 0.1f))
+                    ) {
+                        Divider(color = Color.White, thickness = 1.dp)
+                        for (item in episodeList) {
+                            Text(
+                                text = "${item.episodeNumber}. ${item.title}",
+                                style = MaterialTheme.typography.body2,
+                                modifier = Modifier.padding(8.dp)
+
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 }
