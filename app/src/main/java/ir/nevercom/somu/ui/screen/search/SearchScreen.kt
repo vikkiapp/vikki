@@ -57,7 +57,7 @@ fun SearchScreen(
                     contentDescription = null
                 )
             },
-            placeholder = { Text("Search for movies...") },
+            placeholder = { Text("Search for movies, shows, people...") },
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
             keyboardActions = KeyboardActions(
                 onSearch = {
