@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -20,8 +21,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -39,6 +44,7 @@ import ir.nevercom.somu.ui.component.RatingBar
 import ir.nevercom.somu.ui.theme.darkRed
 import ir.nevercom.somu.ui.theme.lightOrange
 import ir.nevercom.somu.util.ViewState
+import ir.nevercom.somu.util.ifDirectorFound
 
 @Composable
 fun MovieDetailsScreen(
@@ -53,7 +59,7 @@ fun MovieDetailsScreen(
     Crossfade(targetState = currentState.movie) { movieState ->
         when (movieState) {
             is ViewState.Loaded -> {
-                Content(
+                MovieDetailsScreen(
                     movie = movieState.data!!,
                     cast = currentState.cast,
                     crew = currentState.crew,
@@ -73,9 +79,8 @@ fun MovieDetailsScreen(
 
 }
 
-
 @Composable
-private fun Content(
+internal fun MovieDetailsScreen(
     movie: TmdbMovie,
     cast: ViewState<List<Pair<TmdbPerson.Slim, TmdbPerson.CastRole>>>,
     crew: ViewState<List<Pair<TmdbPerson.Slim, TmdbPerson.CrewJob>>>,
@@ -110,7 +115,8 @@ private fun Content(
                     movie = movie,
                     crew = crew,
                     releaseDates = releaseDates,
-                    modifier = Modifier.padding(top = 8.dp)
+                    modifier = Modifier.padding(top = 8.dp),
+                    onPersonClicked = onPersonClicked
                 )
                 if (cast is ViewState.Loaded) {
                     Spacer(modifier = Modifier.height(16.dp))
@@ -213,6 +219,7 @@ private fun PosterSection(
     movie: TmdbMovie,
     crew: ViewState<List<Pair<TmdbPerson.Slim, TmdbPerson.CrewJob>>>,
     releaseDates: ViewState<Map<String, List<TmdbReleaseDate>>>,
+    onPersonClicked: (Int) -> Unit
 ) {
     Row(
         modifier = modifier
@@ -318,11 +325,56 @@ private fun PosterSection(
                 style = MaterialTheme.typography.caption,
             )
             if (crew is ViewState.Loaded) {
-                Text(
-                    text = "Directed by ${crew.data?.find { it.second.job.lowercase() == "director" }?.first?.name}",
-                    style = MaterialTheme.typography.caption,
-                )
+                crew.data?.ifDirectorFound { director ->
+                    DirectorText(director, onPersonClicked)
+                }
             }
         }
     }
+}
+
+@Composable
+private fun DirectorText(
+    director: TmdbPerson.Slim,
+    onPersonClicked: (Int) -> Unit
+) {
+    val annotatedText = buildAnnotatedString {
+        withStyle(
+            style = SpanStyle(
+                fontWeight = FontWeight.Normal,
+                fontSize = 12.sp,
+                letterSpacing = 0.4.sp,
+                color = Color.White
+            )
+        ) {
+            append("Directed by: ")
+        }
+        pushStringAnnotation(
+            tag = "director",
+            annotation = director.id.toString()
+        )
+        withStyle(
+            style = SpanStyle(
+                fontSize = 12.sp,
+                letterSpacing = 0.4.sp,
+                color = Color.LightGray,
+                fontWeight = FontWeight.Bold
+            )
+        ) {
+            append(director.name)
+        }
+        pop()
+    }
+    ClickableText(
+        text = annotatedText,
+        onClick = { offset ->
+            annotatedText.getStringAnnotations(
+                tag = "director",
+                start = offset,
+                end = offset
+            ).firstOrNull()?.let { annotation ->
+                onPersonClicked(annotation.item.toInt())
+            }
+        }
+    )
 }

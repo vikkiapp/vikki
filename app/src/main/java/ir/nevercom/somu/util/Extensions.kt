@@ -6,6 +6,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.semantics.Role
+import de.vkay.api.tmdb.models.TmdbPerson
 
 
 inline fun String?.ifNotEmpty(crossinline block: (String) -> Unit) {
@@ -31,5 +32,12 @@ inline fun Modifier.noRippleClickable(
         role = role,
     ) {
         onClick()
+    }
+}
+
+inline fun List<Pair<TmdbPerson.Slim, TmdbPerson.CrewJob>>.ifDirectorFound(crossinline block: (director: TmdbPerson.Slim) -> Unit) {
+    val director = this.find { it.second.job.lowercase() == "director" }?.first
+    if (director != null) {
+        block(director)
     }
 }
