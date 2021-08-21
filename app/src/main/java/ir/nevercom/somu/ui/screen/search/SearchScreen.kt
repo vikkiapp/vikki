@@ -11,11 +11,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -27,11 +24,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.pagerTabIndicatorOffset
 import com.google.accompanist.pager.rememberPagerState
+import de.vkay.api.tmdb.enumerations.MediaType
 import de.vkay.api.tmdb.models.*
 import ir.nevercom.somu.ui.component.CastCard
 import ir.nevercom.somu.ui.component.MovieCard
 import ir.nevercom.somu.ui.theme.bgColorEdge
 import ir.nevercom.somu.util.ViewState
+import ir.nevercom.somu.util.toReadableString
 import kotlinx.coroutines.launch
 
 @OptIn(androidx.compose.ui.ExperimentalComposeUiApi::class)
@@ -43,14 +42,13 @@ fun SearchScreen(
     onPersonClicked: (id: Int) -> Unit,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
-    val query = remember { mutableStateOf("") }
-    val state = vm.state.observeAsState()
-    val currentState = state.value!!
+    var query by remember { mutableStateOf("") }
+    val state = vm.state.observeAsState(SearchViewState.Empty)
 
     Column(modifier = Modifier.fillMaxSize()) {
         OutlinedTextField(
-            value = query.value,
-            onValueChange = { query.value = it },
+            value = query,
+            onValueChange = { query = it },
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Default.Search,
@@ -61,8 +59,8 @@ fun SearchScreen(
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
             keyboardActions = KeyboardActions(
                 onSearch = {
-                    if (query.value.isNotEmpty()) {
-                        vm.search(query.value)
+                    if (query.isNotEmpty()) {
+                        vm.search(query)
                         keyboardController?.hide()
                     }
                 }
@@ -73,9 +71,9 @@ fun SearchScreen(
                 .padding(horizontal = 16.dp),
         )
         Box(modifier = Modifier.fillMaxSize()) {
-            when (currentState.result) {
+            when (state.value.result) {
                 is ViewState.Loaded -> MovieGrid(
-                    currentState = currentState,
+                    currentState = state.value,
                     onMovieClicked = onMovieClicked,
                     onShowClicked = onShowClicked,
                     onPersonClicked = onPersonClicked
@@ -115,30 +113,15 @@ private fun MovieGrid(
     onShowClicked: (id: Int) -> Unit,
     onPersonClicked: (id: Int) -> Unit,
 ) {
-    val movies = mutableListOf<TmdbMovie.Slim>()
-    val shows = mutableListOf<TmdbShow.Slim>()
-    val persons = mutableListOf<TmdbPerson.Slim>()
 
-    val list = mutableMapOf<String, List<MediaTypeItem>>()
+    val map by remember {
+        mutableStateOf(
+            currentState.result.data?.results?.groupBy { it.mediaType }?.toSortedMap()
+        )
+    }
 
-    currentState.result.data?.results?.forEach {
-        when (it) {
-            is TmdbMovie.Slim -> movies.add(it)
-            is TmdbShow.Slim -> shows.add(it)
-            is TmdbPerson.Slim -> persons.add(it)
-        }
-    }
-    if (movies.isNotEmpty()) {
-        list["Movies"] = movies
-    }
-    if (shows.isNotEmpty()) {
-        list["Shows"] = shows
-    }
-    if (persons.isNotEmpty()) {
-        list["People"] = persons
-    }
-    val pagerState = rememberPagerState(pageCount = list.size)
-    if (list.isNotEmpty()) {
+    val pagerState = rememberPagerState(pageCount = map?.size!!)
+    if (map!!.isNotEmpty()) {
         Column(modifier = Modifier.fillMaxSize()) {
             val coroutineScope = rememberCoroutineScope()
 
@@ -153,9 +136,9 @@ private fun MovieGrid(
                 },
                 modifier = Modifier.padding(horizontal = 16.dp),
             ) {
-                list.entries.forEachIndexed { index, entry ->
+                map!!.entries.forEachIndexed { index, entry ->
                     Tab(
-                        text = { Text("${entry.key} (${entry.value.size})") },
+                        text = { Text("${entry.key.toReadableString()} (${entry.value.size})") },
                         selected = pagerState.currentPage == index,
                         onClick = {
                             coroutineScope.launch {
@@ -170,7 +153,7 @@ private fun MovieGrid(
                 modifier = Modifier.fillMaxSize(),
                 verticalAlignment = Alignment.Top
             ) { page ->
-                TabContent(list, page, onMovieClicked, onShowClicked, onPersonClicked)
+                TabContent(map!!, page, onMovieClicked, onShowClicked, onPersonClicked)
             }
         }
     }
@@ -180,14 +163,14 @@ private fun MovieGrid(
 
 @Composable
 private fun TabContent(
-    list: MutableMap<String, List<MediaTypeItem>>,
+    list: Map<MediaType, List<MediaTypeItem>>,
     page: Int,
     onMovieClicked: (id: Int) -> Unit,
     onShowClicked: (id: Int) -> Unit,
     onPersonClicked: (id: Int) -> Unit
 ) {
     when (val key = list.keys.toTypedArray()[page]) {
-        "Movies" -> {
+        MediaType.MOVIE -> {
             Grid(items = list[key] as List<TmdbMovie.Slim>) {
                 MovieCard(
                     url = it.poster?.get(TmdbImage.Quality.POSTER_W_185),
@@ -197,7 +180,7 @@ private fun TabContent(
                 )
             }
         }
-        "Shows" -> {
+        MediaType.TV -> {
             Grid(items = list[key] as List<TmdbShow.Slim>) {
                 MovieCard(
                     url = it.poster?.get(TmdbImage.Quality.POSTER_W_185),
@@ -207,7 +190,7 @@ private fun TabContent(
                 )
             }
         }
-        "People" -> {
+        MediaType.PERSON -> {
             Grid(items = list[key] as List<TmdbPerson.Slim>) {
                 CastCard(
                     profileUrl = it.profile?.get(TmdbImage.Quality.PROFILE_W_154),

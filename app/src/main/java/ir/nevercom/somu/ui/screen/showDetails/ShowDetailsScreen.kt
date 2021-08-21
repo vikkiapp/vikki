@@ -46,19 +46,17 @@ fun ShowDetailsScreen(
     onBackClicked: () -> Unit,
     onPersonClicked: (Int) -> Unit
 ) {
-    val state = viewModel.state.observeAsState()
-    val currentState = state.value!!
+    val state = viewModel.state.observeAsState(ShowDetailsViewState.Empty)
 
-
-    Crossfade(targetState = currentState.details) { showState ->
+    Crossfade(targetState = state.value.details) { showState ->
         when (showState) {
             is ViewState.Loaded -> {
                 ShowDetailsScreen(
                     show = showState.data!!,
-                    cast = currentState.cast,
-                    crew = currentState.crew,
-                    ratings = currentState.ratings,
-                    episodes = currentState.episodes,
+                    cast = state.value.cast,
+                    crew = state.value.crew,
+                    ratings = state.value.ratings,
+                    episodes = state.value.episodes,
                     onBackClicked = onBackClicked,
                     onPersonClicked = onPersonClicked
                 )

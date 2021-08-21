@@ -33,4 +33,10 @@ class SearchScreenViewModel @Inject constructor(private val tmdb: TMDb) : ViewMo
 
 data class SearchViewState(
     val result: ViewState<TmdbPage<MediaTypeItem>>
-)
+) {
+    companion object {
+        val Empty = SearchViewState(
+            ViewState.Empty(),
+        )
+    }
+}

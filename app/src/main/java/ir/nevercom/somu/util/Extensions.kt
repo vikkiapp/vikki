@@ -6,6 +6,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.semantics.Role
+import de.vkay.api.tmdb.enumerations.MediaType
+import de.vkay.api.tmdb.enumerations.MediaType.*
 import de.vkay.api.tmdb.models.TmdbPerson
 
 
@@ -40,4 +42,13 @@ inline fun List<Pair<TmdbPerson.Slim, TmdbPerson.CrewJob>>.ifDirectorFound(cross
     if (director != null) {
         block(director)
     }
+}
+
+fun MediaType.toReadableString() = when (this) {
+    PERSON -> "People"
+    TV -> "Shows"
+    MOVIE -> "Movies"
+    SEASON -> "Seasons"
+    EPISODE -> "Episodes"
+    UNKNOWN -> "Unknown"
 }

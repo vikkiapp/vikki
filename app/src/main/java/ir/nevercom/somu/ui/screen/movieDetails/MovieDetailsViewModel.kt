@@ -65,7 +65,6 @@ class MovieDetailsViewModel @Inject constructor(
         _state.value = currentState().copy(releaseDates = ViewState.Loading())
         when (val response = tmdb.movieService.releaseDates(movieId)) {
             is NetworkResponse.Success -> {
-                Log.d("getCertifications", response.toString())
                 _state.value =
                     currentState().copy(releaseDates = ViewState.Loaded(response.body))
             }

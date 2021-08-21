@@ -26,10 +26,6 @@ class ShowDetailsViewModel @Inject constructor(
     val state: LiveData<ShowDetailsViewState> = _state
     private fun currentState(): ShowDetailsViewState = _state.value!!
 
-    companion object {
-        const val TAG = "ShowDetailsViewModel"
-    }
-
     init {
         getDetails()
         getCast()
@@ -76,7 +72,6 @@ class ShowDetailsViewModel @Inject constructor(
 
     private fun getEpisodes(show: TmdbShow) = viewModelScope.launch {
         _state.value = currentState().copy(episodes = ViewState.Loading())
-        val list = mutableMapOf<Int, List<TmdbEpisode.Slim>>()
 
         val episodes = show.seasons.map {
             viewModelScope.async {
@@ -87,11 +82,7 @@ class ShowDetailsViewModel @Inject constructor(
             }
         }.awaitAll()
 
-        episodes.forEach {
-            list[it.first] = it.second
-        }
-
-        _state.value = currentState().copy(episodes = ViewState.Loaded(list))
+        _state.value = currentState().copy(episodes = ViewState.Loaded(episodes.toMap()))
     }
 
 }

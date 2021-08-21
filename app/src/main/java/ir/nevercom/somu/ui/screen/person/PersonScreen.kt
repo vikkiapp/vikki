@@ -10,7 +10,10 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -42,18 +45,16 @@ fun PersonScreen(
     onMovieClicked: (movieId: Int) -> Unit,
     onShowClicked: (showId: Int) -> Unit
 ) {
-    val state = vm.state.observeAsState()
-    val currentState = state.value!!
+    val state = vm.state.observeAsState(PersonViewState.Empty)
 
-    currentState.filmsCrew.data?.sortedBy { it.second.department }
-    Crossfade(targetState = currentState.details) { detailsState ->
+    Crossfade(targetState = state.value.details) { detailsState ->
         when (detailsState) {
             is ViewState.Loaded -> {
                 Content(
-                    details = currentState.details.data!!,
-                    externalIds = currentState.externalIds,
-                    filmsCast = currentState.filmsCast,
-                    filmsCrew = currentState.filmsCrew,
+                    details = state.value.details.data!!,
+                    externalIds = state.value.externalIds,
+                    filmsCast = state.value.filmsCast,
+                    filmsCrew = state.value.filmsCrew,
                     onBackClicked = onBackClicked,
                     onMovieClicked = onMovieClicked,
                     onShowClicked = onShowClicked,
@@ -88,7 +89,6 @@ private fun Content(
                 data = details.profile?.get(Quality.PROFILE_W_154),
                 builder = {
                     crossfade(true)
-                    //placeholder(R.drawable.poster_1_blur) // TODO: Remove or change in production
                     transformations(BlurTransformation(LocalContext.current, 15f, 3f))
                 }
             ),
@@ -126,15 +126,16 @@ private fun Content(
                     )
                 }
                 if (filmsCrew is ViewState.Loaded) {
-                    val group = filmsCrew.data?.groupBy { it.second.department }
-                    group?.forEach {
+                    val departments by remember { mutableStateOf(filmsCrew.data?.groupBy { it.second.department }) }
+
+                    departments?.forEach { (department, filmography) ->
                         Spacer(modifier = Modifier.height(8.dp))
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Text(
-                                text = it.key,
+                                text = department,
                                 style = MaterialTheme.typography.subtitle2,
                                 modifier = Modifier.padding(start = 16.dp)
                             )
@@ -145,7 +146,7 @@ private fun Content(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                             contentPadding = PaddingValues(horizontal = 16.dp)
                         ) {
-                            items(items = it.value) {
+                            items(items = filmography) {
                                 when (it.first) {
                                     is TmdbMovie.Slim -> {
                                         val item = it.first as TmdbMovie.Slim
@@ -278,9 +279,7 @@ private fun SummarySection(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-        //.clip(RoundedCornerShape(8.dp)).background(Color.Gray.copy(alpha = 0.1f))
-        ,
+            .padding(horizontal = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Image(
