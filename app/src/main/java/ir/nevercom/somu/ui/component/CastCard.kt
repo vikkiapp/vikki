@@ -17,6 +17,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberImagePainter
+import com.google.accompanist.placeholder.PlaceholderHighlight
+import com.google.accompanist.placeholder.material.fade
+import com.google.accompanist.placeholder.material.placeholder
 
 @Composable
 fun CastCard(
@@ -56,6 +59,36 @@ fun CastCard(
             text = name,
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.caption.copy(fontSize = 10.sp)
+        )
+    }
+}
+
+@Composable
+fun CastPlaceHolder() {
+    Column(
+        modifier = Modifier.width(72.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(
+            modifier = Modifier
+                .size(72.dp)
+                .clip(CircleShape)
+                .placeholder(
+                    visible = true,
+                    color = Color.LightGray.copy(alpha = 0.1f),
+                    highlight = PlaceholderHighlight.fade(),
+                )
+
+        )
+        Text(
+            text = "name",
+            modifier = Modifier
+                .placeholder(
+                    visible = true,
+                    color = Color.LightGray.copy(alpha = 0.1f),
+                    highlight = PlaceholderHighlight.fade(),
+                )
         )
     }
 }

@@ -34,6 +34,7 @@ import com.google.accompanist.insets.statusBarsPadding
 import de.vkay.api.tmdb.models.*
 import ir.nevercom.somu.R
 import ir.nevercom.somu.ui.component.CastCard
+import ir.nevercom.somu.ui.component.CastPlaceHolder
 import ir.nevercom.somu.ui.component.ExpandingText
 import ir.nevercom.somu.ui.component.RatingBar
 import ir.nevercom.somu.ui.theme.darkRed
@@ -100,13 +101,13 @@ internal fun ShowDetailsScreen(
                     ratings = ratings,
                     modifier = Modifier.padding(top = 8.dp)
                 )
-                if (cast is ViewState.Loaded) {
-                    Spacer(modifier = Modifier.height(16.dp))
-                    CastsSection(
-                        casts = cast.data!!,
-                        onClick = { onPersonClicked(it.id) }
-                    )
-                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+                CastsSection(
+                    casts = cast,
+                    onClick = { onPersonClicked(it.id) }
+                )
+
                 show.overview.let {
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
@@ -245,7 +246,7 @@ private fun TopBar(show: TmdbShow, onBackClicked: () -> Unit) {
 
 @Composable
 private fun CastsSection(
-    casts: List<Pair<TmdbPerson.Slim, TmdbPerson.CastRole>>,
+    casts: ViewState<List<Pair<TmdbPerson.Slim, TmdbPerson.CastRole>>>,
     onClick: (cast: TmdbPerson.Slim) -> Unit
 ) {
     Text(
@@ -254,29 +255,31 @@ private fun CastsSection(
         modifier = Modifier.padding(horizontal = 16.dp)
     )
     Spacer(modifier = Modifier.height(8.dp))
-    CastsList(casts, onClick)
-}
-
-@Composable
-private fun CastsList(
-    casts: List<Pair<TmdbPerson.Slim, TmdbPerson.CastRole>>,
-    onClick: (cast: TmdbPerson.Slim) -> Unit
-) {
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = PaddingValues(horizontal = 16.dp)
     ) {
-        items(
-            items = casts.filter { it.first.profile != null }.take(10)
-        ) { cast ->
-            CastCard(
-                profileUrl = cast.first.profile?.get(TmdbImage.Quality.PROFILE_W_154),
-                name = cast.first.name,
-                onClick = { onClick(cast.first) }
-            )
+        when (casts) {
+            is ViewState.Loaded -> {
+                items(
+                    items = casts.data!!.filter { it.first.profile != null }.take(10)
+                ) { cast ->
+                    CastCard(
+                        profileUrl = cast.first.profile?.get(TmdbImage.Quality.PROFILE_W_154),
+                        name = cast.first.name,
+                        onClick = { onClick(cast.first) }
+                    )
+                }
+            }
+            else -> {
+                items(10) {
+                    CastPlaceHolder()
+                }
+            }
         }
     }
 }
+
 
 @SuppressLint("NewApi")
 @Composable
