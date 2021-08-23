@@ -20,8 +20,7 @@ fun HomeContent(
     vm: HomeViewModel = hiltViewModel(),
     onMovieClicked: (movieId: Int) -> Unit
 ) {
-    val state = vm.state.observeAsState()
-    val currentState: HomeViewState = state.value!!
+    val state = vm.state.observeAsState(HomeViewState.Empty)
 
     Column(
         modifier = Modifier
@@ -40,7 +39,7 @@ fun HomeContent(
             modifier = Modifier
                 .fillMaxWidth()
         ) {
-            when (val movies = currentState.movies) {
+            when (val movies = state.value.movies) {
                 is ViewState.Loaded -> {
                     items(items = movies.data!!, key = { it.id }) {
                         MovieCard(

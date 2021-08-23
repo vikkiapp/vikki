@@ -13,10 +13,9 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class HomeViewModel @Inject constructor(private val api: Api, private val tmdb: TMDb) :
+class HomeViewModel @Inject constructor(private val tmdb: TMDb) :
     ViewModel() {
-    private val _state: MutableLiveData<HomeViewState> =
-        MutableLiveData(HomeViewState(ViewState.Loading()))
+    private val _state: MutableLiveData<HomeViewState> = MutableLiveData(HomeViewState.Empty)
     val state: LiveData<HomeViewState> = _state
 
     init {
@@ -75,4 +74,10 @@ inline fun <T : Any, R : Any> execute(
  */
 data class HomeViewState(
     val movies: ViewState<List<TmdbMovie.Slim>>
-)
+) {
+    companion object {
+        val Empty = HomeViewState(
+            ViewState.Empty(),
+        )
+    }
+}
