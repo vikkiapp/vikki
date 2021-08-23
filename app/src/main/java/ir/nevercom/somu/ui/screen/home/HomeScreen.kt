@@ -45,6 +45,7 @@ fun HomeContent(
                         MovieCard(
                             url = it.poster?.get(TmdbImage.Quality.POSTER_W_185),
                             rating = (it.voteAverage / 2).toFloat(),
+                            title = it.title,
                             onClick = { onMovieClicked(it.id) }
                         )
                     }
