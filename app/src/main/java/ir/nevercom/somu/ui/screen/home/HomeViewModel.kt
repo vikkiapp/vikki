@@ -8,7 +8,6 @@ import com.haroldadmin.cnradapter.NetworkResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import de.vkay.api.tmdb.TMDb
 import de.vkay.api.tmdb.models.TmdbMovie
-import ir.nevercom.somu.repositories.Api
 import ir.nevercom.somu.util.ViewState
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -51,8 +50,8 @@ class HomeViewModel @Inject constructor(private val api: Api, private val tmdb: 
 //        }
 //    }
 
-    fun getList() = viewModelScope.launch {
-        when (val response = tmdb.searchService.movie(query = "god")) {
+    private fun getList() = viewModelScope.launch {
+        when (val response = tmdb.movieService.popular()) {
             is NetworkResponse.Success -> {
                 _state.value = HomeViewState(ViewState.Loaded(response.body.results))
             }
@@ -60,6 +59,20 @@ class HomeViewModel @Inject constructor(private val api: Api, private val tmdb: 
     }
 }
 
+/*
+inline fun <T : Any, R : Any> execute(
+    input: NetworkResponse<T, TmdbError.DefaultError>,
+    crossinline result: (response: NetworkResponse.Success<T>) -> R
+) = when (input) {
+    is NetworkResponse.Success -> {
+        ViewState.Loaded(result(input))
+    }
+    is NetworkResponse.ServerError -> {
+        ViewState.Error(Throwable(input.body?.message ?: "Something went wrong"))
+    }
+    else -> ViewState.Error(Throwable("Something went wrong"))
+}
+ */
 data class HomeViewState(
     val movies: ViewState<List<TmdbMovie.Slim>>
 )
