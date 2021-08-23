@@ -29,6 +29,7 @@ class MovieDetailsViewModel @Inject constructor(
         getCast()
         getCrew()
         getCertifications()
+        getSimilarMovies()
     }
 
     private fun getMovieInfo() = viewModelScope.launch {
@@ -72,6 +73,17 @@ class MovieDetailsViewModel @Inject constructor(
         }
 
     }
+
+    private fun getSimilarMovies() = viewModelScope.launch {
+        _state.value = currentState().copy(similar = ViewState.Loading())
+        when (val response = tmdb.movieService.similar(movieId)) {
+            is NetworkResponse.Success -> {
+                _state.value =
+                    currentState().copy(similar = ViewState.Loaded(response.body.results))
+            }
+        }
+
+    }
 }
 
 data class MovieDetailsViewState(
@@ -79,9 +91,11 @@ data class MovieDetailsViewState(
     val cast: ViewState<List<Pair<TmdbPerson.Slim, TmdbPerson.CastRole>>>,
     val crew: ViewState<List<Pair<TmdbPerson.Slim, TmdbPerson.CrewJob>>>,
     val releaseDates: ViewState<Map<String, List<TmdbReleaseDate>>>,
+    val similar: ViewState<List<TmdbMovie.Slim>>
 ) {
     companion object {
         val Empty = MovieDetailsViewState(
+            ViewState.Empty(),
             ViewState.Empty(),
             ViewState.Empty(),
             ViewState.Empty(),

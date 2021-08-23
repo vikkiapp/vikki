@@ -145,6 +145,9 @@ fun MainScreen(userRepository: UserRepository) {
             ) {
                 MovieDetailsScreen(
                     onBackClicked = { navController.popBackStack() },
+                    onMovieClicked = { id ->
+                        navController.navigate(Screen.MovieDetails.createRoute(id))
+                    },
                     onPersonClicked = { id ->
                         navController.navigate(Screen.PersonDetails.createRoute(id))
                     }

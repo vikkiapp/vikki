@@ -40,6 +40,7 @@ import de.vkay.api.tmdb.models.TmdbReleaseDate
 import ir.nevercom.somu.R
 import ir.nevercom.somu.ui.component.CastCard
 import ir.nevercom.somu.ui.component.ExpandingText
+import ir.nevercom.somu.ui.component.MovieCard
 import ir.nevercom.somu.ui.component.RatingBar
 import ir.nevercom.somu.ui.theme.darkRed
 import ir.nevercom.somu.ui.theme.lightOrange
@@ -50,7 +51,8 @@ import ir.nevercom.somu.util.ifDirectorFound
 fun MovieDetailsScreen(
     viewModel: MovieDetailsViewModel = hiltViewModel(),
     onBackClicked: () -> Unit,
-    onPersonClicked: (Int) -> Unit
+    onMovieClicked: (id: Int) -> Unit,
+    onPersonClicked: (id: Int) -> Unit
 ) {
     val state = viewModel.state.observeAsState(MovieDetailsViewState.Empty)
 
@@ -63,7 +65,9 @@ fun MovieDetailsScreen(
                     cast = state.value.cast,
                     crew = state.value.crew,
                     releaseDates = state.value.releaseDates,
+                    recommendations = state.value.similar,
                     onBackClicked = onBackClicked,
+                    onMovieClicked = onMovieClicked,
                     onPersonClicked = onPersonClicked
                 )
             }
@@ -84,7 +88,9 @@ internal fun MovieDetailsScreen(
     cast: ViewState<List<Pair<TmdbPerson.Slim, TmdbPerson.CastRole>>>,
     crew: ViewState<List<Pair<TmdbPerson.Slim, TmdbPerson.CrewJob>>>,
     releaseDates: ViewState<Map<String, List<TmdbReleaseDate>>>,
+    recommendations: ViewState<List<TmdbMovie.Slim>>,
     onBackClicked: () -> Unit,
+    onMovieClicked: (Int) -> Unit,
     onPersonClicked: (Int) -> Unit
 ) {
     Box(
@@ -140,8 +146,46 @@ internal fun MovieDetailsScreen(
                             .padding(horizontal = 16.dp),
                     )
                 }
+                if (recommendations is ViewState.Loaded) {
+                    RecommendationsSection(
+                        filmList = recommendations.data!!,
+                        onMovieClicked = onMovieClicked
+                    )
+                }
             }
+        }
+    }
+}
 
+@Composable
+private fun RecommendationsSection(
+    filmList: List<TmdbMovie.Slim>,
+    onMovieClicked: (Int) -> Unit,
+) {
+    Spacer(modifier = Modifier.height(16.dp))
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text(
+            text = "Recommendations",
+            style = MaterialTheme.typography.subtitle2,
+            modifier = Modifier.padding(start = 16.dp)
+        )
+        Divider(color = Color.White.copy(alpha = 0.75f), thickness = 1.dp)
+    }
+    Spacer(modifier = Modifier.height(8.dp))
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(horizontal = 16.dp)
+    ) {
+        items(items = filmList) { item ->
+            MovieCard(
+                url = item.poster?.get(TmdbImage.Quality.POSTER_W_185),
+                rating = (item.voteAverage / 2).toFloat(),
+                title = item.title,
+                onClick = { onMovieClicked(item.id) }
+            )
         }
     }
 }
