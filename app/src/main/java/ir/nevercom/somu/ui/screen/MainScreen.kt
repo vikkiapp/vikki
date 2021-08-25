@@ -1,5 +1,7 @@
 package ir.nevercom.somu.ui.screen
 
+import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Icon
@@ -14,11 +16,15 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
-import androidx.navigation.compose.*
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.navArgument
 import com.google.accompanist.insets.LocalWindowInsets
 import com.google.accompanist.insets.rememberInsetsPaddingValues
 import com.google.accompanist.insets.ui.BottomNavigation
 import com.google.accompanist.insets.ui.TopAppBar
+import com.google.accompanist.navigation.animation.AnimatedNavHost
+import com.google.accompanist.navigation.animation.composable
+import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import ir.nevercom.somu.R
 import ir.nevercom.somu.repositories.UserRepository
 import ir.nevercom.somu.ui.NavScreen
@@ -31,9 +37,10 @@ import ir.nevercom.somu.ui.screen.search.SearchScreen
 import ir.nevercom.somu.ui.screen.showDetails.ShowDetailsScreen
 import ir.nevercom.somu.ui.theme.bgColorEdge
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun MainScreen(userRepository: UserRepository) {
-    val navController = rememberNavController()
+    val navController = rememberAnimatedNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
@@ -103,12 +110,42 @@ fun MainScreen(userRepository: UserRepository) {
         } else {
             Screen.Login.route
         }
-        NavHost(
-            navController,
+        AnimatedNavHost(
+            navController = navController,
             startDestination = startDestination,
-            Modifier.padding(innerPadding)
+            modifier = Modifier.padding(innerPadding),
+            enterTransition = { _, _ ->
+                slideInHorizontally(
+                    initialOffsetX = { it },
+                    animationSpec = tween(1000)
+                )
+            },
+            exitTransition = { _, _ ->
+                slideOutHorizontally(
+                    targetOffsetX = { -it },
+                    animationSpec = tween(1000)
+                )
+            },
+            popEnterTransition = { _, _ ->
+                slideInHorizontally(
+                    initialOffsetX = { -it },
+                    animationSpec = tween(1000)
+                )
+            },
+            popExitTransition = { _, _ ->
+                slideOutHorizontally(
+                    targetOffsetX = { it },
+                    animationSpec = tween(1000)
+                )
+            },
         ) {
-            composable(Screen.Login.route) {
+            composable(
+                route = Screen.Login.route,
+                enterTransition = { _, _ -> fadeIn() },
+                exitTransition = { _, _ -> fadeOut() },
+                popEnterTransition = { _, _ -> fadeIn() },
+                popExitTransition = { _, _ -> fadeOut() },
+            ) {
                 LoginScreen(
                     onLoggedIn = {
                         navController.navigate(NavScreen.Home.route) {
@@ -117,14 +154,26 @@ fun MainScreen(userRepository: UserRepository) {
                     }
                 )
             }
-            composable(NavScreen.Home.route) {
+            composable(
+                route = NavScreen.Home.route,
+                enterTransition = { _, _ -> fadeIn() },
+                exitTransition = { _, _ -> fadeOut() },
+                popEnterTransition = { _, _ -> fadeIn() },
+                popExitTransition = { _, _ -> fadeOut() },
+            ) {
                 HomeContent(
                     onMovieClicked = { id ->
                         navController.navigate(Screen.MovieDetails.createRoute(id))
                     }
                 )
             }
-            composable(NavScreen.Search.route) {
+            composable(
+                route = NavScreen.Search.route,
+                enterTransition = { _, _ -> fadeIn() },
+                exitTransition = { _, _ -> fadeOut() },
+                popEnterTransition = { _, _ -> fadeIn() },
+                popExitTransition = { _, _ -> fadeOut() },
+            ) {
                 SearchScreen(
                     onMovieClicked = { id ->
                         navController.navigate(Screen.MovieDetails.createRoute(id))
@@ -137,8 +186,24 @@ fun MainScreen(userRepository: UserRepository) {
                     }
                 )
             }
-            composable(NavScreen.Friends.route) { Text("Friends") }
-            composable(NavScreen.Profile.route) { Text("Profile") }
+            composable(
+                route = NavScreen.Friends.route,
+                enterTransition = { _, _ -> fadeIn() },
+                exitTransition = { _, _ -> fadeOut() },
+                popEnterTransition = { _, _ -> fadeIn() },
+                popExitTransition = { _, _ -> fadeOut() },
+            ) {
+                Text("Friends")
+            }
+            composable(
+                route = NavScreen.Profile.route,
+                enterTransition = { _, _ -> fadeIn() },
+                exitTransition = { _, _ -> fadeOut() },
+                popEnterTransition = { _, _ -> fadeIn() },
+                popExitTransition = { _, _ -> fadeOut() },
+            ) {
+                Text("Profile")
+            }
             composable(
                 route = Screen.MovieDetails.route,
                 arguments = listOf(navArgument("id") { type = NavType.IntType })
