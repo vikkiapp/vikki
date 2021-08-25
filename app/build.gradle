@@ -26,10 +26,11 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
 
-            buildConfigField "String", "API_URL", "\"api.vikki.ir/v1/\""
+            //buildConfigField "String", "API_URL", "\"http://api.vikki.ir/v1/\""
+            buildConfigField "String", "API_URL", "\"https://stoplight.io/mocks/nevercom/somu-api-design:master/15470586/\""
         }
         debug {
             minifyEnabled false
