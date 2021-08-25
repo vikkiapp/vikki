@@ -50,7 +50,7 @@ fun PersonScreen(
     Crossfade(targetState = state.value.details) { detailsState ->
         when (detailsState) {
             is ViewState.Loaded -> {
-                Content(
+                PersonScreen(
                     details = state.value.details.data!!,
                     externalIds = state.value.externalIds,
                     filmsCast = state.value.filmsCast,
@@ -70,7 +70,7 @@ fun PersonScreen(
 }
 
 @Composable
-private fun Content(
+internal fun PersonScreen(
     details: TmdbPerson,
     externalIds: ViewState<TmdbExternalIds>,
     filmsCast: ViewState<List<Pair<MediaTypeItem, TmdbPerson.CastRole>>>,
@@ -84,20 +84,8 @@ private fun Content(
             .fillMaxSize()
             .background(colorResource(id = R.color.gray))
     ) {
-        Image(
-            painter = rememberImagePainter(
-                data = details.profile?.get(Quality.PROFILE_W_154),
-                builder = {
-                    crossfade(true)
-                    transformations(BlurTransformation(LocalContext.current, 15f, 3f))
-                }
-            ),
-            contentDescription = null,
-            modifier = Modifier
-                .fillMaxSize()
-                .alpha(0.7f),
-            contentScale = ContentScale.Crop,
-        )
+        Background(details.profile?.get(Quality.PROFILE_W_154))
+
         Column(modifier = Modifier.fillMaxSize()) {
             TopBar(details = details, onBackClicked = onBackClicked)
             Column(
@@ -176,6 +164,24 @@ private fun Content(
             }
         }
     }
+}
+
+@Composable
+private fun Background(url: String?) {
+    Image(
+        painter = rememberImagePainter(
+            data = url,
+            builder = {
+                crossfade(true)
+                transformations(BlurTransformation(LocalContext.current, 15f, 3f))
+            }
+        ),
+        contentDescription = null,
+        modifier = Modifier
+            .fillMaxSize()
+            .alpha(0.7f),
+        contentScale = ContentScale.Crop,
+    )
 }
 
 @Composable
