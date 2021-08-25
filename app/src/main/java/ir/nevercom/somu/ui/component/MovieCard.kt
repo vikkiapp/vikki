@@ -52,6 +52,8 @@ fun MovieCard(url: String?, title: String = "", rating: Float = 0.0f, onClick: (
                 }
             ),
             contentDescription = null,
+            modifier = Modifier
+                .fillMaxSize(),
             contentScale = ContentScale.Crop
         )
         Box(

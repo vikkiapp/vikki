@@ -52,6 +52,8 @@ fun CastCard(
                     data = profileUrl,
                 ),
                 contentDescription = null,
+                modifier = Modifier
+                    .fillMaxSize(),
                 contentScale = ContentScale.Crop,
             )
         }
