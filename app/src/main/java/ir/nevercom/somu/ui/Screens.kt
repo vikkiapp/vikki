@@ -12,6 +12,8 @@ sealed class NavScreen(val route: String, val title: String, val icon: ImageVect
     object Search : NavScreen("search", "Search", Icons.Default.Search)
     object Friends : NavScreen("friends", "Friends Feed", Icons.Default.Group)
     object Profile : NavScreen("profile", "Profile", Icons.Default.Person)
+
+
 }
 
 sealed class Screen(val route: String) {
@@ -28,3 +30,10 @@ sealed class Screen(val route: String) {
         fun createRoute(id: Int): String = "person/$id"
     }
 }
+
+val navScreens = listOf(
+    NavScreen.Home,
+    NavScreen.Search,
+    NavScreen.Friends,
+    NavScreen.Profile
+)

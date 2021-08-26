@@ -13,8 +13,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navArgument
@@ -29,6 +32,7 @@ import ir.nevercom.somu.R
 import ir.nevercom.somu.repositories.UserRepository
 import ir.nevercom.somu.ui.NavScreen
 import ir.nevercom.somu.ui.Screen
+import ir.nevercom.somu.ui.navScreens
 import ir.nevercom.somu.ui.screen.home.HomeContent
 import ir.nevercom.somu.ui.screen.login.LoginScreen
 import ir.nevercom.somu.ui.screen.movieDetails.MovieDetailsScreen
@@ -44,12 +48,6 @@ fun MainScreen(userRepository: UserRepository) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
-    val navScreens = listOf(
-        NavScreen.Home,
-        NavScreen.Search,
-        NavScreen.Friends,
-        NavScreen.Profile
-    )
     Scaffold(
         topBar = {
             if (currentDestination?.route in navScreens.associateBy { it.route }) {
@@ -114,31 +112,49 @@ fun MainScreen(userRepository: UserRepository) {
             navController = navController,
             startDestination = startDestination,
             modifier = Modifier.padding(innerPadding),
-            enterTransition = { _, _ ->
-                slideInHorizontally(
-                    initialOffsetX = { it },
-                    animationSpec = tween(1000)
-                )
+            enterTransition = { initial, _ ->
+                if (initial.isBottomNavScreen()) {
+                    slideInVertically(
+                        initialOffsetY = { it },
+                        animationSpec = tween(300)
+                    )
+                } else {
+                    slideInHorizontally(
+                        initialOffsetX = { it },
+                        animationSpec = tween(300)
+                    )
+                }
+
             },
             exitTransition = { _, _ ->
                 slideOutHorizontally(
                     targetOffsetX = { -it },
-                    animationSpec = tween(1000)
+                    animationSpec = tween(300)
                 )
             },
             popEnterTransition = { _, _ ->
                 slideInHorizontally(
                     initialOffsetX = { -it },
-                    animationSpec = tween(1000)
+                    animationSpec = tween(300)
                 )
             },
-            popExitTransition = { _, _ ->
-                slideOutHorizontally(
-                    targetOffsetX = { it },
-                    animationSpec = tween(1000)
-                )
+            popExitTransition = { _, target ->
+                if (target.isBottomNavScreen()) {
+                    slideOutVertically(
+                        targetOffsetY = { it },
+                        animationSpec = tween(300)
+                    )
+                } else {
+                    slideOutHorizontally(
+                        targetOffsetX = { it },
+                        animationSpec = tween(300)
+                    )
+
+                }
             },
         ) {
+            addBottomNavScreens(navController)
+
             composable(
                 route = Screen.Login.route,
                 enterTransition = { _, _ -> fadeIn() },
@@ -153,56 +169,6 @@ fun MainScreen(userRepository: UserRepository) {
                         }
                     }
                 )
-            }
-            composable(
-                route = NavScreen.Home.route,
-                enterTransition = { _, _ -> fadeIn() },
-                exitTransition = { _, _ -> fadeOut() },
-                popEnterTransition = { _, _ -> fadeIn() },
-                popExitTransition = { _, _ -> fadeOut() },
-            ) {
-                HomeContent(
-                    onMovieClicked = { id ->
-                        navController.navigate(Screen.MovieDetails.createRoute(id))
-                    }
-                )
-            }
-            composable(
-                route = NavScreen.Search.route,
-                enterTransition = { _, _ -> fadeIn() },
-                exitTransition = { _, _ -> fadeOut() },
-                popEnterTransition = { _, _ -> fadeIn() },
-                popExitTransition = { _, _ -> fadeOut() },
-            ) {
-                SearchScreen(
-                    onMovieClicked = { id ->
-                        navController.navigate(Screen.MovieDetails.createRoute(id))
-                    },
-                    onShowClicked = { id ->
-                        navController.navigate(Screen.ShowDetails.createRoute(id))
-                    },
-                    onPersonClicked = { id ->
-                        navController.navigate(Screen.PersonDetails.createRoute(id))
-                    }
-                )
-            }
-            composable(
-                route = NavScreen.Friends.route,
-                enterTransition = { _, _ -> fadeIn() },
-                exitTransition = { _, _ -> fadeOut() },
-                popEnterTransition = { _, _ -> fadeIn() },
-                popExitTransition = { _, _ -> fadeOut() },
-            ) {
-                Text("Friends")
-            }
-            composable(
-                route = NavScreen.Profile.route,
-                enterTransition = { _, _ -> fadeIn() },
-                exitTransition = { _, _ -> fadeOut() },
-                popEnterTransition = { _, _ -> fadeIn() },
-                popExitTransition = { _, _ -> fadeOut() },
-            ) {
-                Text("Profile")
             }
             composable(
                 route = Screen.MovieDetails.route,
@@ -246,3 +212,205 @@ fun MainScreen(userRepository: UserRepository) {
         }
     }
 }
+
+
+@OptIn(ExperimentalAnimationApi::class)
+private fun NavGraphBuilder.addBottomNavScreens(navController: NavHostController) {
+    composable(
+        route = NavScreen.Home.route,
+        enterTransition = { initial, _ ->
+            if (!initial.isBottomNavScreen()) {
+                slideInVertically(
+                    initialOffsetY = { it },
+                    animationSpec = tween(300)
+                )
+            } else {
+                fadeIn()
+            }
+        },
+        exitTransition = { _, target ->
+            if (!target.isBottomNavScreen()) {
+                slideOutVertically(
+                    targetOffsetY = { -it },
+                    animationSpec = tween(300)
+                )
+            } else {
+                fadeOut()
+            }
+        },
+        popEnterTransition = { initial, _ ->
+            if (!initial.isBottomNavScreen()) {
+                slideInVertically(
+                    initialOffsetY = { -it },
+                    animationSpec = tween(300)
+                )
+            } else {
+                fadeIn()
+            }
+        },
+        popExitTransition = { _, target ->
+            if (!target.isBottomNavScreen()) {
+                slideOutVertically(
+                    targetOffsetY = { it },
+                    animationSpec = tween(300)
+                )
+            } else {
+                fadeOut()
+            }
+        }
+    ) {
+        HomeContent(
+            onMovieClicked = { id ->
+                navController.navigate(Screen.MovieDetails.createRoute(id))
+            }
+        )
+    }
+    composable(
+        route = NavScreen.Search.route,
+        enterTransition = { initial, _ ->
+            if (!initial.isBottomNavScreen()) {
+                slideInVertically(
+                    initialOffsetY = { it },
+                    animationSpec = tween(300)
+                )
+            } else {
+                fadeIn()
+            }
+        },
+        exitTransition = { _, target ->
+            if (!target.isBottomNavScreen()) {
+                slideOutVertically(
+                    targetOffsetY = { -it },
+                    animationSpec = tween(300)
+                )
+            } else {
+                fadeOut()
+            }
+        },
+        popEnterTransition = { initial, _ ->
+            if (!initial.isBottomNavScreen()) {
+                slideInVertically(
+                    initialOffsetY = { -it },
+                    animationSpec = tween(300)
+                )
+            } else {
+                fadeIn()
+            }
+        },
+        popExitTransition = { _, target ->
+            if (!target.isBottomNavScreen()) {
+                slideOutVertically(
+                    targetOffsetY = { it },
+                    animationSpec = tween(300)
+                )
+            } else {
+                fadeOut()
+            }
+        }
+    ) {
+        SearchScreen(
+            onMovieClicked = { id ->
+                navController.navigate(Screen.MovieDetails.createRoute(id))
+            },
+            onShowClicked = { id ->
+                navController.navigate(Screen.ShowDetails.createRoute(id))
+            },
+            onPersonClicked = { id ->
+                navController.navigate(Screen.PersonDetails.createRoute(id))
+            }
+        )
+    }
+    composable(
+        route = NavScreen.Friends.route,
+        enterTransition = { initial, _ ->
+            if (!initial.isBottomNavScreen()) {
+                slideInVertically(
+                    initialOffsetY = { it },
+                    animationSpec = tween(300)
+                )
+            } else {
+                fadeIn()
+            }
+        },
+        exitTransition = { _, target ->
+            if (!target.isBottomNavScreen()) {
+                slideOutVertically(
+                    targetOffsetY = { -it },
+                    animationSpec = tween(300)
+                )
+            } else {
+                fadeOut()
+            }
+        },
+        popEnterTransition = { initial, _ ->
+            if (!initial.isBottomNavScreen()) {
+                slideInVertically(
+                    initialOffsetY = { -it },
+                    animationSpec = tween(300)
+                )
+            } else {
+                fadeIn()
+            }
+        },
+        popExitTransition = { _, target ->
+            if (!target.isBottomNavScreen()) {
+                slideOutVertically(
+                    targetOffsetY = { it },
+                    animationSpec = tween(300)
+                )
+            } else {
+                fadeOut()
+            }
+        }
+    ) {
+        Text("Friends")
+    }
+    composable(
+        route = NavScreen.Profile.route,
+        enterTransition = { initial, _ ->
+            if (!initial.isBottomNavScreen()) {
+                slideInVertically(
+                    initialOffsetY = { it },
+                    animationSpec = tween(300)
+                )
+            } else {
+                fadeIn()
+            }
+        },
+        exitTransition = { _, target ->
+            if (!target.isBottomNavScreen()) {
+                slideOutVertically(
+                    targetOffsetY = { -it },
+                    animationSpec = tween(300)
+                )
+            } else {
+                fadeOut()
+            }
+        },
+        popEnterTransition = { initial, _ ->
+            if (!initial.isBottomNavScreen()) {
+                slideInVertically(
+                    initialOffsetY = { -it },
+                    animationSpec = tween(300)
+                )
+            } else {
+                fadeIn()
+            }
+        },
+        popExitTransition = { _, target ->
+            if (!target.isBottomNavScreen()) {
+                slideOutVertically(
+                    targetOffsetY = { it },
+                    animationSpec = tween(300)
+                )
+            } else {
+                fadeOut()
+            }
+        }
+    ) {
+        Text("Profile")
+    }
+}
+
+private fun NavBackStackEntry.isBottomNavScreen() =
+    this.destination.hierarchy.any { it.route in navScreens.map { screen -> screen.route } }
