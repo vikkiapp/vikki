@@ -1,6 +1,5 @@
 package ir.nevercom.somu.ui.screen.showDetails
 
-import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -280,8 +279,6 @@ private fun CastsSection(
     }
 }
 
-
-@SuppressLint("NewApi")
 @Composable
 private fun PosterSection(
     modifier: Modifier = Modifier,
@@ -393,7 +390,6 @@ private fun Rating(show: TmdbShow) {
     }
 }
 
-@SuppressLint("NewApi")
 @Composable
 private fun CertificationAndDate(
     ratings: ViewState<List<TmdbContentRating>>,

@@ -37,20 +37,19 @@ fun LoginScreen(
     viewModel: LoginScreenViewModel = hiltViewModel(),
     onLoggedIn: () -> Unit
 ) {
-    val state = viewModel.viewState.observeAsState()
-    val currentState = state.value!!
+    val state = viewModel.viewState.observeAsState(LoginViewState())
 
-    if (currentState.isLoggedIn) {
+    if (state.value.isLoggedIn) {
         onLoggedIn()
     }
-    Content(currentState = currentState, onLoginClicked = viewModel::login)
+    LoginScreen(state = state.value, onLoginClicked = viewModel::login)
 
 
 }
 
 @Composable
-private fun Content(
-    currentState: LoginViewState,
+internal fun LoginScreen(
+    state: LoginViewState,
     onLoginClicked: (email: String, password: String) -> Unit
 ) {
     Surface(
@@ -71,7 +70,7 @@ private fun Content(
                 PasswordInputState()
             }
             Logo()
-            if (currentState.errorMessage != null && currentState.errorMessage.isNotEmpty()) {
+            if (state.errorMessage != null && state.errorMessage.isNotEmpty()) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -83,7 +82,7 @@ private fun Content(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = currentState.errorMessage,
+                        text = state.errorMessage,
                         style = MaterialTheme.typography.overline
                     )
                 }
@@ -99,7 +98,7 @@ private fun Content(
             Spacer(Modifier.height(48.dp))
 
             Button(
-                enabled = !currentState.isLoading,
+                enabled = !state.isLoading,
                 colors = ButtonDefaults.buttonColors(
                     disabledBackgroundColor = MaterialTheme.colors.primary.copy(
                         alpha = 0.5f
@@ -228,8 +227,8 @@ fun LoginScreenPreview() {
         errorMessage = "email or password is incorrect, please provide valid credentials"
     )
     SomuTheme {
-        Content(
-            currentState = currentState,
+        LoginScreen(
+            state = currentState,
             onLoginClicked = { _, _ -> }
         )
     }

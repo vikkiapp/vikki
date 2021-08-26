@@ -1,6 +1,5 @@
 package ir.nevercom.somu.ui.screen.movieDetails
 
-import android.annotation.SuppressLint
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -252,8 +251,6 @@ private fun CastsSection(
     }
 }
 
-
-@SuppressLint("NewApi")
 @Composable
 private fun PosterSection(
     modifier: Modifier = Modifier,
