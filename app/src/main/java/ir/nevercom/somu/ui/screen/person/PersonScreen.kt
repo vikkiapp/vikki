@@ -37,6 +37,8 @@ import ir.nevercom.somu.ui.component.SocialMedia
 import ir.nevercom.somu.ui.component.SocialMediaItem
 import ir.nevercom.somu.util.ViewState
 import ir.nevercom.somu.util.ifNotEmpty
+import java.time.LocalDate
+import java.time.Period
 
 @Composable
 fun PersonScreen(
@@ -310,16 +312,33 @@ private fun SummarySection(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-
             details.birthDay?.let {
+                val age by remember {
+                    mutableStateOf(
+                        if (!details.isDead) {
+                            val years = Period.between(it.date, LocalDate.now()).years
+                            " ($years years old)"
+                        } else ""
+                    )
+                }
                 Text(
-                    text = "Birthday: ${it.localize()}",
+                    text = "Born: ${it.localize()}$age",
                     style = MaterialTheme.typography.caption
                 )
             }
             if (details.isDead) {
+                val age by remember {
+                    mutableStateOf(
+                        " (at ${
+                            Period.between(
+                                details.birthDay?.date,
+                                details.deathDay?.date
+                            ).years
+                        })"
+                    )
+                }
                 Text(
-                    text = "Day of Death: ${details.deathDay?.localize()}",
+                    text = "Died: ${details.deathDay?.localize()}$age",
                     style = MaterialTheme.typography.caption
                 )
             }
