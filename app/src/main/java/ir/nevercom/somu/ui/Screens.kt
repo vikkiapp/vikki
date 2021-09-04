@@ -29,6 +29,11 @@ sealed class Screen(val route: String) {
     object PersonDetails : Screen("person/{id}") {
         fun createRoute(id: Int): String = "person/$id"
     }
+
+    object Discover : Screen("discover?title={title}") {
+        fun createRoute(title: String?): String =
+            if (title != null) "discover?title=$title" else "discover"
+    }
 }
 
 val navScreens = listOf(

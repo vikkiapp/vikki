@@ -33,6 +33,8 @@ import ir.nevercom.somu.repositories.UserRepository
 import ir.nevercom.somu.ui.NavScreen
 import ir.nevercom.somu.ui.Screen
 import ir.nevercom.somu.ui.navScreens
+import ir.nevercom.somu.ui.screen.discover.DiscoverOptions
+import ir.nevercom.somu.ui.screen.discover.DiscoverScreen
 import ir.nevercom.somu.ui.screen.home.HomeContent
 import ir.nevercom.somu.ui.screen.login.LoginScreen
 import ir.nevercom.somu.ui.screen.movieDetails.MovieDetailsScreen
@@ -181,6 +183,10 @@ fun MainScreen(userRepository: UserRepository) {
                     },
                     onPersonClicked = { id ->
                         navController.navigate(Screen.PersonDetails.createRoute(id))
+                    },
+                    onDiscoverOptionClicked = { options, title ->
+                        DiscoverOptions.options = options
+                        navController.navigate(Screen.Discover.createRoute(title))
                     }
                 )
             }
@@ -200,6 +206,20 @@ fun MainScreen(userRepository: UserRepository) {
                 arguments = listOf(navArgument("id") { type = NavType.IntType })
             ) {
                 PersonScreen(
+                    onBackClicked = { navController.popBackStack() },
+                    onMovieClicked = { id ->
+                        navController.navigate(Screen.MovieDetails.createRoute(id))
+                    },
+                    onShowClicked = { id ->
+                        navController.navigate(Screen.ShowDetails.createRoute(id))
+                    },
+                )
+            }
+            composable(
+                route = Screen.Discover.route,
+                arguments = listOf(navArgument("title") { nullable = true })
+            ) {
+                DiscoverScreen(
                     onBackClicked = { navController.popBackStack() },
                     onMovieClicked = { id ->
                         navController.navigate(Screen.MovieDetails.createRoute(id))

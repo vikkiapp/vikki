@@ -6,6 +6,7 @@ buildscript {
         koin_version = "3.1.2"
         tmdb_version = '782a21be419d3bab93a2362f55c8d9ded39a8b5e'
         hilt_version = '2.38.1'
+        paging_version = "3.0.1"
     }
     repositories {
         google()
