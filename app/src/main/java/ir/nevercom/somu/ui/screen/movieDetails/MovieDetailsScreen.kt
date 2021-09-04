@@ -32,6 +32,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberImagePainter
 import coil.transform.BlurTransformation
 import com.google.accompanist.insets.statusBarsPadding
+import de.vkay.api.tmdb.Discover
 import de.vkay.api.tmdb.models.TmdbImage
 import de.vkay.api.tmdb.models.TmdbMovie
 import de.vkay.api.tmdb.models.TmdbPerson
@@ -48,7 +49,8 @@ fun MovieDetailsScreen(
     viewModel: MovieDetailsViewModel = hiltViewModel(),
     onBackClicked: () -> Unit,
     onMovieClicked: (id: Int) -> Unit,
-    onPersonClicked: (id: Int) -> Unit
+    onPersonClicked: (id: Int) -> Unit,
+    onDiscoverOptionClicked: (options: Discover.MovieBuilder, title: String?) -> Unit
 ) {
     val state = viewModel.state.observeAsState(MovieDetailsViewState.Empty)
 
@@ -64,7 +66,8 @@ fun MovieDetailsScreen(
                     recommendations = state.value.similar,
                     onBackClicked = onBackClicked,
                     onMovieClicked = onMovieClicked,
-                    onPersonClicked = onPersonClicked
+                    onPersonClicked = onPersonClicked,
+                    onDiscoverOptionClicked = onDiscoverOptionClicked
                 )
             }
             else -> {
@@ -87,7 +90,8 @@ internal fun MovieDetailsScreen(
     recommendations: ViewState<List<TmdbMovie.Slim>>,
     onBackClicked: () -> Unit,
     onMovieClicked: (Int) -> Unit,
-    onPersonClicked: (Int) -> Unit
+    onPersonClicked: (Int) -> Unit,
+    onDiscoverOptionClicked: (options: Discover.MovieBuilder, title: String?) -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -117,7 +121,8 @@ internal fun MovieDetailsScreen(
                     crew = crew,
                     releaseDates = releaseDates,
                     modifier = Modifier.padding(top = 8.dp),
-                    onPersonClicked = onPersonClicked
+                    onPersonClicked = onPersonClicked,
+                    onDiscoverOptionClicked = onDiscoverOptionClicked
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 CastsSection(
@@ -257,7 +262,8 @@ private fun PosterSection(
     movie: TmdbMovie,
     crew: ViewState<List<Pair<TmdbPerson.Slim, TmdbPerson.CrewJob>>>,
     releaseDates: ViewState<Map<String, List<TmdbReleaseDate>>>,
-    onPersonClicked: (Int) -> Unit
+    onPersonClicked: (Int) -> Unit,
+    onDiscoverOptionClicked: (options: Discover.MovieBuilder, title: String?) -> Unit
 ) {
     Row(
         modifier = modifier
@@ -335,6 +341,13 @@ private fun PosterSection(
                             textAlign = TextAlign.Center,
                             modifier = Modifier
                                 .background(color = darkRed, shape = RoundedCornerShape(16.dp))
+                                .clip(RoundedCornerShape(16.dp))
+                                .clickable {
+                                    val options = Discover
+                                        .MovieBuilder()
+                                        .withGenres(listOf(it.id))
+                                    onDiscoverOptionClicked(options, it.name)
+                                }
                                 .padding(horizontal = 6.dp, vertical = 2.dp)
                                 .height(16.dp),
                             style = MaterialTheme.typography.caption.copy(
