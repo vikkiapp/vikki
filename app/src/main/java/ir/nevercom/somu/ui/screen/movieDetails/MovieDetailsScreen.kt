@@ -330,6 +330,18 @@ private fun PosterSection(
                 Text(
                     text = releaseDate,
                     style = MaterialTheme.typography.caption,
+                    modifier = Modifier.weight(1f)
+                )
+                Text(
+                    text = movie.originalLanguage.uppercase(),
+                    style = MaterialTheme.typography.caption,
+                    modifier = Modifier
+                        .border(
+                            width = 1.dp,
+                            color = Color.White,
+                            shape = RoundedCornerShape(4.dp)
+                        )
+                        .padding(horizontal = 4.dp, vertical = 2.dp)
                 )
             }
             movie.genres.let { genres ->
