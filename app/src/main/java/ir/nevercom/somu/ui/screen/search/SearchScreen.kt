@@ -13,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -42,7 +43,7 @@ fun SearchScreen(
     onPersonClicked: (id: Int) -> Unit,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
-    var query by remember { mutableStateOf("") }
+    var query by rememberSaveable { mutableStateOf("") }
     val state = vm.state.observeAsState(SearchViewState.Empty)
 
     Column(modifier = Modifier.fillMaxSize()) {
