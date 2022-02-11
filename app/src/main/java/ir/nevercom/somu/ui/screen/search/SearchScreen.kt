@@ -121,7 +121,7 @@ private fun MovieGrid(
         )
     }
 
-    val pagerState = rememberPagerState(pageCount = map?.size!!)
+    val pagerState = rememberPagerState()
     if (map!!.isNotEmpty()) {
         Column(modifier = Modifier.fillMaxSize()) {
             val coroutineScope = rememberCoroutineScope()
@@ -152,7 +152,8 @@ private fun MovieGrid(
             HorizontalPager(
                 state = pagerState,
                 modifier = Modifier.fillMaxSize(),
-                verticalAlignment = Alignment.Top
+                verticalAlignment = Alignment.Top,
+                count = map?.size!!
             ) { page ->
                 TabContent(map!!, page, onMovieClicked, onShowClicked, onPersonClicked)
             }
