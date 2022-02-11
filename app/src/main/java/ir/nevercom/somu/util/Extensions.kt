@@ -15,7 +15,9 @@ import de.vkay.api.tmdb.enumerations.MediaType
 import de.vkay.api.tmdb.enumerations.MediaType.*
 import de.vkay.api.tmdb.models.TmdbPerson
 
-
+/**
+ * Invokes the lambda if the String is not empty or null
+ */
 inline fun String?.ifNotEmpty(crossinline block: (String) -> Unit) {
     if (this != null && this.isNotEmpty()) {
         block(this)
@@ -23,6 +25,7 @@ inline fun String?.ifNotEmpty(crossinline block: (String) -> Unit) {
 }
 
 /**
+ * A Modifier that makes the composable Clickable, and disables the Ripple effect.
  * Taken from: [https://stackoverflow.com/a/66839858/1686304]
  */
 inline fun Modifier.noRippleClickable(
@@ -42,6 +45,10 @@ inline fun Modifier.noRippleClickable(
     }
 }
 
+/**
+ * An Extension function to find the `Director` in a list of Pair<TmdbPerson.Slim, TmdbPerson.CrewJob>
+ * and invokes the passed lambda if any `Director` is found.
+ */
 inline fun List<Pair<TmdbPerson.Slim, TmdbPerson.CrewJob>>.ifDirectorFound(crossinline block: (director: TmdbPerson.Slim) -> Unit) {
     val director = this.find { it.second.job.lowercase() == "director" }?.first
     if (director != null) {
@@ -49,6 +56,9 @@ inline fun List<Pair<TmdbPerson.Slim, TmdbPerson.CrewJob>>.ifDirectorFound(cross
     }
 }
 
+/**
+ * A more suitable String representation of [MediaType] enums
+ */
 fun MediaType.toReadableString() = when (this) {
     PERSON -> "People"
     TV -> "Shows"
