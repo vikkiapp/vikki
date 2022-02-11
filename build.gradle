@@ -1,11 +1,11 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
     ext {
-        compose_version = '1.0.1'
-        accompanist_version = '0.17.0'
+        compose_version = '1.1.0'
+        accompanist_version = '0.23.0'
         koin_version = "3.1.2"
         tmdb_version = '782a21be419d3bab93a2362f55c8d9ded39a8b5e'
-        hilt_version = '2.38.1'
+        hilt_version = '2.40.5'
         paging_version = "3.0.1"
     }
     repositories {
@@ -15,8 +15,8 @@ buildscript {
 
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.1.0-alpha10'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.21"
+        classpath 'com.android.tools.build:gradle:7.2.0-beta01'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.10"
         classpath "com.google.android.libraries.mapsplatform.secrets-gradle-plugin:secrets-gradle-plugin:2.0.0"
         classpath 'com.google.dagger:hilt-android-gradle-plugin:2.38.1'
 
