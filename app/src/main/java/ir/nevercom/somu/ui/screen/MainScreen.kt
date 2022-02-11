@@ -13,14 +13,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavBackStackEntry
+import androidx.navigation.*
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
-import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavHostController
-import androidx.navigation.NavType
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.navArgument
 import com.google.accompanist.insets.LocalWindowInsets
 import com.google.accompanist.insets.rememberInsetsPaddingValues
 import com.google.accompanist.insets.ui.BottomNavigation
@@ -114,8 +110,8 @@ fun MainScreen(userRepository: UserRepository) {
             navController = navController,
             startDestination = startDestination,
             modifier = Modifier.padding(innerPadding),
-            enterTransition = { initial, _ ->
-                if (initial.isBottomNavScreen()) {
+            enterTransition = {
+                if (initialState.isBottomNavScreen()) {
                     slideInVertically(
                         initialOffsetY = { it },
                         animationSpec = tween(300)
@@ -128,20 +124,20 @@ fun MainScreen(userRepository: UserRepository) {
                 }
 
             },
-            exitTransition = { _, _ ->
+            exitTransition = {
                 slideOutHorizontally(
                     targetOffsetX = { -it },
                     animationSpec = tween(300)
                 )
             },
-            popEnterTransition = { _, _ ->
+            popEnterTransition = {
                 slideInHorizontally(
                     initialOffsetX = { -it },
                     animationSpec = tween(300)
                 )
             },
-            popExitTransition = { _, target ->
-                if (target.isBottomNavScreen()) {
+            popExitTransition = {
+                if (targetState.isBottomNavScreen()) {
                     slideOutVertically(
                         targetOffsetY = { it },
                         animationSpec = tween(300)
@@ -159,10 +155,10 @@ fun MainScreen(userRepository: UserRepository) {
 
             composable(
                 route = Screen.Login.route,
-                enterTransition = { _, _ -> fadeIn() },
-                exitTransition = { _, _ -> fadeOut() },
-                popEnterTransition = { _, _ -> fadeIn() },
-                popExitTransition = { _, _ -> fadeOut() },
+                enterTransition = { fadeIn() },
+                exitTransition = { fadeOut() },
+                popEnterTransition = { fadeIn() },
+                popExitTransition = { fadeOut() },
             ) {
                 LoginScreen(
                     onLoggedIn = {
@@ -238,8 +234,8 @@ fun MainScreen(userRepository: UserRepository) {
 private fun NavGraphBuilder.addBottomNavScreens(navController: NavHostController) {
     composable(
         route = NavScreen.Home.route,
-        enterTransition = { initial, _ ->
-            if (!initial.isBottomNavScreen()) {
+        enterTransition = {
+            if (!initialState.isBottomNavScreen()) {
                 slideInVertically(
                     initialOffsetY = { it },
                     animationSpec = tween(300)
@@ -248,8 +244,8 @@ private fun NavGraphBuilder.addBottomNavScreens(navController: NavHostController
                 fadeIn()
             }
         },
-        exitTransition = { _, target ->
-            if (!target.isBottomNavScreen()) {
+        exitTransition = {
+            if (!targetState.isBottomNavScreen()) {
                 slideOutVertically(
                     targetOffsetY = { -it },
                     animationSpec = tween(300)
@@ -258,8 +254,8 @@ private fun NavGraphBuilder.addBottomNavScreens(navController: NavHostController
                 fadeOut()
             }
         },
-        popEnterTransition = { initial, _ ->
-            if (!initial.isBottomNavScreen()) {
+        popEnterTransition = {
+            if (!initialState.isBottomNavScreen()) {
                 slideInVertically(
                     initialOffsetY = { -it },
                     animationSpec = tween(300)
@@ -268,8 +264,8 @@ private fun NavGraphBuilder.addBottomNavScreens(navController: NavHostController
                 fadeIn()
             }
         },
-        popExitTransition = { _, target ->
-            if (!target.isBottomNavScreen()) {
+        popExitTransition = {
+            if (!targetState.isBottomNavScreen()) {
                 slideOutVertically(
                     targetOffsetY = { it },
                     animationSpec = tween(300)
@@ -287,8 +283,8 @@ private fun NavGraphBuilder.addBottomNavScreens(navController: NavHostController
     }
     composable(
         route = NavScreen.Search.route,
-        enterTransition = { initial, _ ->
-            if (!initial.isBottomNavScreen()) {
+        enterTransition = {
+            if (!initialState.isBottomNavScreen()) {
                 slideInVertically(
                     initialOffsetY = { it },
                     animationSpec = tween(300)
@@ -297,8 +293,8 @@ private fun NavGraphBuilder.addBottomNavScreens(navController: NavHostController
                 fadeIn()
             }
         },
-        exitTransition = { _, target ->
-            if (!target.isBottomNavScreen()) {
+        exitTransition = {
+            if (!targetState.isBottomNavScreen()) {
                 slideOutVertically(
                     targetOffsetY = { -it },
                     animationSpec = tween(300)
@@ -307,8 +303,8 @@ private fun NavGraphBuilder.addBottomNavScreens(navController: NavHostController
                 fadeOut()
             }
         },
-        popEnterTransition = { initial, _ ->
-            if (!initial.isBottomNavScreen()) {
+        popEnterTransition = {
+            if (!initialState.isBottomNavScreen()) {
                 slideInVertically(
                     initialOffsetY = { -it },
                     animationSpec = tween(300)
@@ -317,8 +313,8 @@ private fun NavGraphBuilder.addBottomNavScreens(navController: NavHostController
                 fadeIn()
             }
         },
-        popExitTransition = { _, target ->
-            if (!target.isBottomNavScreen()) {
+        popExitTransition = {
+            if (!targetState.isBottomNavScreen()) {
                 slideOutVertically(
                     targetOffsetY = { it },
                     animationSpec = tween(300)
@@ -342,8 +338,8 @@ private fun NavGraphBuilder.addBottomNavScreens(navController: NavHostController
     }
     composable(
         route = NavScreen.Friends.route,
-        enterTransition = { initial, _ ->
-            if (!initial.isBottomNavScreen()) {
+        enterTransition = {
+            if (!initialState.isBottomNavScreen()) {
                 slideInVertically(
                     initialOffsetY = { it },
                     animationSpec = tween(300)
@@ -352,8 +348,8 @@ private fun NavGraphBuilder.addBottomNavScreens(navController: NavHostController
                 fadeIn()
             }
         },
-        exitTransition = { _, target ->
-            if (!target.isBottomNavScreen()) {
+        exitTransition = {
+            if (!targetState.isBottomNavScreen()) {
                 slideOutVertically(
                     targetOffsetY = { -it },
                     animationSpec = tween(300)
@@ -362,8 +358,8 @@ private fun NavGraphBuilder.addBottomNavScreens(navController: NavHostController
                 fadeOut()
             }
         },
-        popEnterTransition = { initial, _ ->
-            if (!initial.isBottomNavScreen()) {
+        popEnterTransition = {
+            if (!initialState.isBottomNavScreen()) {
                 slideInVertically(
                     initialOffsetY = { -it },
                     animationSpec = tween(300)
@@ -372,8 +368,8 @@ private fun NavGraphBuilder.addBottomNavScreens(navController: NavHostController
                 fadeIn()
             }
         },
-        popExitTransition = { _, target ->
-            if (!target.isBottomNavScreen()) {
+        popExitTransition = {
+            if (!targetState.isBottomNavScreen()) {
                 slideOutVertically(
                     targetOffsetY = { it },
                     animationSpec = tween(300)
@@ -387,8 +383,8 @@ private fun NavGraphBuilder.addBottomNavScreens(navController: NavHostController
     }
     composable(
         route = NavScreen.Profile.route,
-        enterTransition = { initial, _ ->
-            if (!initial.isBottomNavScreen()) {
+        enterTransition = {
+            if (!initialState.isBottomNavScreen()) {
                 slideInVertically(
                     initialOffsetY = { it },
                     animationSpec = tween(300)
@@ -397,8 +393,8 @@ private fun NavGraphBuilder.addBottomNavScreens(navController: NavHostController
                 fadeIn()
             }
         },
-        exitTransition = { _, target ->
-            if (!target.isBottomNavScreen()) {
+        exitTransition = {
+            if (!targetState.isBottomNavScreen()) {
                 slideOutVertically(
                     targetOffsetY = { -it },
                     animationSpec = tween(300)
@@ -407,8 +403,8 @@ private fun NavGraphBuilder.addBottomNavScreens(navController: NavHostController
                 fadeOut()
             }
         },
-        popEnterTransition = { initial, _ ->
-            if (!initial.isBottomNavScreen()) {
+        popEnterTransition = {
+            if (!initialState.isBottomNavScreen()) {
                 slideInVertically(
                     initialOffsetY = { -it },
                     animationSpec = tween(300)
@@ -417,8 +413,8 @@ private fun NavGraphBuilder.addBottomNavScreens(navController: NavHostController
                 fadeIn()
             }
         },
-        popExitTransition = { _, target ->
-            if (!target.isBottomNavScreen()) {
+        popExitTransition = {
+            if (!targetState.isBottomNavScreen()) {
                 slideOutVertically(
                     targetOffsetY = { it },
                     animationSpec = tween(300)
